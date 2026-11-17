@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+docker/
+
+.env
+.npmrc
+
+yarn-lock.json
+yarn-error.log
+*.log
+
+.tmp/
+uploads/

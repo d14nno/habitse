@@ -1,0 +1,1557 @@
+openapi: 3.1.0
+info:
+  title: Habitse API
+  version: 1.0.0
+  summary: Cadastro, login, refresh token, 2FA, verificação de conta, recuperação de senha e painel admin.
+  description: API da vitrine de imóveis Habitse (usados, na planta e em construção) e da base de contas/painel administrativo.
+servers:
+  - url: http://localhost:3900
+    description: Desenvolvimento local
+  - url: https://api.habitse.com.br
+    description: Produção
+tags:
+  - name: Imóveis
+    description: "Vitrine pública: lista, detalhe e opções de filtro. Sem login; só anúncios publicados."
+  - name: Público
+    description: Health check.
+  - name: Contas
+    description: Cadastro, perfil, verificações, 2FA e recuperação de senha.
+  - name: Sessões
+    description: Login, 2FA no login, refresh token e logout.
+  - name: Admin
+    description: Rotas do painel. Exigem usuário `admin` e a permissão do papel (`x-permission`).
+paths:
+  /health:
+    get:
+      tags:
+        - Público
+      operationId: healthCheck
+      summary: Health check
+      description: Verifica banco de dados e Redis. 200 = ok, 503 = degradado, 500 = erro.
+      security: []
+      responses:
+        "200":
+          description: Serviços saudáveis.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthCheck"
+        "500":
+          description: Erro ao executar o health check.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthCheck"
+        "503":
+          description: Algum serviço degradado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthCheck"
+  /accounts:
+    post:
+      tags:
+        - Contas
+      operationId: registerAccount
+      summary: Criar conta
+      description: "Cadastro público (sempre type = user) que já devolve a sessão aberta. Administradores não se cadastram por aqui. Rate limit: 20 req / 15 min."
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterAccountInput"
+      responses:
+        "201":
+          description: Conta criada e sessão iniciada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /accounts/me:
+    get:
+      tags:
+        - Contas
+      operationId: getMyAccount
+      summary: Minha conta
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Usuário autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /accounts/profile:
+    patch:
+      tags:
+        - Contas
+      operationId: updateProfile
+      summary: Atualizar perfil
+      description: Envie ao menos um campo.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileInput"
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /accounts/avatar:
+    post:
+      tags:
+        - Contas
+      operationId: uploadAvatar
+      summary: Enviar foto de perfil
+      description: Imagem (jpg, png, webp, heic) até 10 MB no campo `file`.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/ImageUpload"
+      responses:
+        "200":
+          description: URL do novo avatar.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - avatarUrl
+                properties:
+                  avatarUrl:
+                    type: string
+                    format: uri
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /accounts/password:
+    patch:
+      tags:
+        - Contas
+      operationId: updatePassword
+      summary: Alterar senha
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - passwordOld
+                - password
+                - passwordConfirm
+              properties:
+                passwordOld:
+                  type: string
+                  description: Senha atual.
+                password:
+                  type: string
+                  minLength: 8
+                passwordConfirm:
+                  type: string
+                  description: Deve ser igual a `password`.
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /accounts/verifications:
+    post:
+      tags:
+        - Contas
+      operationId: requestVerification
+      summary: Solicitar código de verificação
+      description: Envia um código de 6 dígitos por e-mail, válido por 10 minutos. Rate limit 10 req / 15 min.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - channel
+              properties:
+                channel:
+                  $ref: "#/components/schemas/VerificationChannel"
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+    patch:
+      tags:
+        - Contas
+      operationId: confirmVerification
+      summary: Confirmar código de verificação
+      description: Rate limit 20 req / 15 min.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - channel
+                - code
+              properties:
+                channel:
+                  $ref: "#/components/schemas/VerificationChannel"
+                code:
+                  type: string
+                  pattern: ^\d{6}$
+                  description: Código de 6 dígitos.
+      responses:
+        "200":
+          description: Usuário com o canal verificado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /accounts/2fa:
+    post:
+      tags:
+        - Contas
+      operationId: setupTwoFactor
+      summary: Gerar segredo TOTP
+      description: Gera o segredo para configurar o app autenticador. Ative com `PUT /accounts/2fa`.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Segredo e QR code.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - secret
+                  - qrCode
+                properties:
+                  secret:
+                    type: string
+                  qrCode:
+                    type: string
+                    description: Data URL (image/png) do QR code.
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+    put:
+      tags:
+        - Contas
+      operationId: enableTwoFactor
+      summary: Ativar 2FA
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/TotpCode"
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    delete:
+      tags:
+        - Contas
+      operationId: disableTwoFactor
+      summary: Desativar 2FA
+      security:
+        - bearerAuth: []
+      requestBody:
+        $ref: "#/components/requestBodies/TotpCode"
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /password-reset-tokens:
+    post:
+      tags:
+        - Contas
+      operationId: createPasswordResetToken
+      summary: Solicitar recuperação de senha
+      description: Envia um código de 6 dígitos por e-mail. Sempre responde 204 (não revela se o e-mail existe). Rate limit 10 req / 15 min.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+    patch:
+      tags:
+        - Contas
+      operationId: resetPassword
+      summary: Redefinir senha com o código
+      description: Rate limit 10 req / 15 min.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - token
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                token:
+                  type: string
+                  pattern: ^\d{6}$
+                  description: Código de 6 dígitos recebido por e-mail.
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /sessions:
+    post:
+      tags:
+        - Sessões
+      operationId: createSession
+      summary: Login
+      description: |
+        Com 2FA ativo, devolve `{ requires2FA: true, twoFactorToken }` (válido 5 min) e o login deve ser
+        concluído em `POST /sessions/2fa`. Rate limit 20 req / 15 min.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Sessão criada ou desafio 2FA.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/AuthResponse"
+                  - $ref: "#/components/schemas/TwoFactorChallenge"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+    delete:
+      tags:
+        - Sessões
+      operationId: deleteSession
+      summary: Logout
+      description: Encerra a sessão atual (invalida access e refresh token).
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /sessions/2fa:
+    post:
+      tags:
+        - Sessões
+      operationId: createSessionTwoFactor
+      summary: Concluir login com 2FA
+      description: Rate limit 20 req / 15 min.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - twoFactorToken
+                - code
+              properties:
+                twoFactorToken:
+                  type: string
+                  format: uuid
+                code:
+                  type: string
+                  pattern: ^\d{6}$
+                  description: Código TOTP de 6 dígitos.
+      responses:
+        "200":
+          description: Sessão criada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+  /sessions/refresh-token:
+    post:
+      tags:
+        - Sessões
+      operationId: refreshToken
+      summary: Renovar tokens
+      description: "Envie o **refresh token** no header `Authorization: Bearer <refreshToken>`. Se falhar, deslogue o usuário."
+      security:
+        - refreshBearer: []
+      responses:
+        "200":
+          description: Novos tokens.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenRefreshResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /admin/users:
+    get:
+      tags:
+        - Admin
+      operationId: adminListUsers
+      summary: Listar usuários
+      description: "Permissão: `users:read`."
+      x-permission: users:read
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: "#/components/schemas/UserType"
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/UserStatus"
+        - $ref: "#/components/parameters/Search"
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+      responses:
+        "200":
+          description: Usuários.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedUser"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /admin/users/{id}:
+    get:
+      tags:
+        - Admin
+      operationId: adminGetUser
+      summary: Detalhe do usuário
+      description: "Permissão: `users:read`."
+      x-permission: users:read
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Usuário.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /admin/users/{id}/status:
+    patch:
+      tags:
+        - Admin
+      operationId: adminUpdateUserStatus
+      summary: Bloquear/desbloquear usuário
+      description: "Permissão: `users:manage`. `inactive` = bloqueado."
+      x-permission: users:manage
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - active
+                    - inactive
+      responses:
+        "200":
+          description: Usuário atualizado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /admin/admins:
+    get:
+      tags:
+        - Admin
+      operationId: adminListAdmins
+      summary: Listar administradores
+      description: "Permissão: `admins:manage`."
+      x-permission: admins:manage
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Administradores.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags:
+        - Admin
+      operationId: adminCreateAdmin
+      summary: Criar administrador
+      description: "Permissão: `admins:manage`."
+      x-permission: admins:manage
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - name
+                - password
+                - adminRole
+              properties:
+                email:
+                  type: string
+                  format: email
+                name:
+                  type: string
+                  minLength: 3
+                  maxLength: 120
+                password:
+                  type: string
+                  minLength: 8
+                adminRole:
+                  $ref: "#/components/schemas/AdminRole"
+      responses:
+        "201":
+          description: Administrador criado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /admin/admins/{id}:
+    patch:
+      tags:
+        - Admin
+      operationId: adminUpdateAdmin
+      summary: Atualizar administrador
+      description: "Permissão: `admins:manage`. Envie ao menos um campo."
+      x-permission: admins:manage
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                adminRole:
+                  $ref: "#/components/schemas/AdminRole"
+                status:
+                  type: string
+                  enum:
+                    - active
+                    - inactive
+      responses:
+        "200":
+          description: Administrador atualizado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /admin/audit-logs:
+    get:
+      tags:
+        - Admin
+      operationId: adminListAuditLogs
+      summary: Log de auditoria
+      description: "Permissão: `audit:read`."
+      x-permission: audit:read
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: adminId
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: action
+          in: query
+          schema:
+            type: string
+            maxLength: 60
+        - name: entityType
+          in: query
+          schema:
+            type: string
+            maxLength: 60
+        - name: entityId
+          in: query
+          schema:
+            type: string
+            maxLength: 60
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
+      responses:
+        "200":
+          description: Registros de auditoria.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedAuditLog"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /listings:
+    get:
+      tags:
+        - Imóveis
+      operationId: listListings
+      summary: Lista de imóveis (filtrada e paginada)
+      description: 'Só publicados. Ordem padrão: destaques primeiro, depois mais recentes. Preço "sob consulta" vai para o fim nas ordenações por preço/área.'
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - used
+              - off_plan
+              - under_construction
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - apartamento
+              - casa
+              - cobertura
+              - casa_condominio
+              - terreno
+              - sala_comercial
+        - name: city
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: neighborhood
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: maxPrice
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: bedrooms
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Mínimo de quartos
+        - name: parking
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Mínimo de vagas
+        - name: featured
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Busca por título, bairro, cidade ou construtora (sem acento)
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - recent
+              - price_asc
+              - price_desc
+              - area_desc
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: perPage
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        "200":
+          description: Página de imóveis.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ListingCard"
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      perPage:
+                        type: integer
+                      total:
+                        type: integer
+                      lastPage:
+                        type: integer
+        "400":
+          description: Parâmetro inválido.
+  /listings/facets:
+    get:
+      tags:
+        - Imóveis
+      operationId: listingFacets
+      summary: Opções dos filtros
+      description: Cidades, bairros, tipos e faixa de preço (da categoria informada, se houver) e total por categoria.
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - used
+              - off_plan
+              - under_construction
+      responses:
+        "200":
+          description: Opções.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        category:
+                          type: string
+                        total:
+                          type: integer
+                  cities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        city:
+                          type: string
+                        total:
+                          type: integer
+                  neighborhoods:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        city:
+                          type: string
+                        neighborhood:
+                          type: string
+                        total:
+                          type: integer
+                  types:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        total:
+                          type: integer
+                  price:
+                    type: object
+                    properties:
+                      min:
+                        type: number
+                        nullable: true
+                      max:
+                        type: number
+                        nullable: true
+  /listings/{slug}:
+    get:
+      tags:
+        - Imóveis
+      operationId: getListing
+      summary: Página do imóvel
+      description: Fotos, descrição, diferenciais e até 4 imóveis parecidos (`related`).
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Imóvel.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListingDetail"
+        "404":
+          description: Não encontrado ou não publicado (`LISTING:NOT_FOUND`).
+  /sitemap.xml:
+    get:
+      tags:
+        - Imóveis
+      operationId: sitemap
+      summary: Sitemap do site
+      description: XML com início, categorias e cada imóvel publicado (endereços do `SITE_URL`).
+      responses:
+        "200":
+          description: XML.
+          content:
+            application/xml:
+              schema:
+                type: string
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Access token (`AuthResponse.token`). Sessão validada no Redis.
+    refreshBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Refresh token (`AuthResponse.refreshToken`), usado só em `POST /sessions/refresh-token`.
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      description: Identificador do recurso.
+      schema:
+        type: integer
+        minimum: 1
+    Page:
+      name: page
+      in: query
+      description: Página (a partir de 1).
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PerPage:
+      name: perPage
+      in: query
+      description: Itens por página.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    Search:
+      name: search
+      in: query
+      description: Busca por nome ou e-mail.
+      schema:
+        type: string
+        maxLength: 120
+  requestBodies:
+    TotpCode:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - code
+            properties:
+              code:
+                type: string
+                pattern: ^\d{6}$
+                description: Código TOTP de 6 dígitos.
+  responses:
+    NoContent:
+      description: Sucesso, sem conteúdo.
+    BadRequest:
+      description: Erro de validação ou de regra de negócio.
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/ValidationError"
+              - $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: "`TOKEN:NO_PROVIDED`, `TOKEN:UN_FORMATTED`, `TOKEN:INVALID` (inclui expirado) ou `TOKEN:EXPIRED` (sessão encerrada) → tente o refresh uma vez; se falhar, deslogue."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: "`AUTH:USER_TYPE_FORBIDDEN` ou `AUTH:PERMISSION_DENIED`."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Recurso não encontrado.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Conflict:
+      description: "Conflito de estado (ex.: registro duplicado)."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    TooManyRequests:
+      description: Limite de requisições excedido (`RATE_LIMIT`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    UserType:
+      type: string
+      enum:
+        - user
+        - admin
+    UserStatus:
+      type: string
+      enum:
+        - pending
+        - active
+        - inactive
+      description: "`inactive` = bloqueado."
+    AdminRole:
+      type: string
+      enum:
+        - super_admin
+        - support
+    VerificationChannel:
+      type: string
+      enum:
+        - email
+      description: Canal do código (hoje só e-mail).
+    Permission:
+      type: string
+      enum:
+        - users:read
+        - users:manage
+        - admins:manage
+        - audit:read
+    Error:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - message
+              - uniqueCode
+            properties:
+              message:
+                type: string
+                description: Texto para o usuário (pt-BR).
+              uniqueCode:
+                type: string
+                description: "Código estável, ex.: `ACCOUNT:NOT_FOUND`."
+              details:
+                type: object
+                additionalProperties: true
+    ValidationError:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+              - message
+              - code
+            properties:
+              message:
+                type: string
+              code:
+                type: string
+                pattern: ^validateRequest\.
+                description: "`validateRequest.<segmento>` (body, query, params, headers)."
+              details:
+                type: object
+                properties:
+                  path:
+                    type: array
+                    items:
+                      type:
+                        - string
+                        - integer
+                  type:
+                    type: string
+                    description: "Tipo do erro Joi, ex.: `any.required`."
+                  context:
+                    type: object
+                    additionalProperties: true
+    Pagination:
+      type: object
+      required:
+        - page
+        - perPage
+        - total
+        - lastPage
+      properties:
+        page:
+          type: integer
+        perPage:
+          type: integer
+        total:
+          type: integer
+        lastPage:
+          type: integer
+    Paginated:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items: {}
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+    PaginatedUser:
+      allOf:
+        - $ref: "#/components/schemas/Paginated"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/User"
+    PaginatedAuditLog:
+      allOf:
+        - $ref: "#/components/schemas/Paginated"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/AuditLog"
+    ImageUpload:
+      type: object
+      required:
+        - file
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          description: Imagem jpeg, png, webp ou heic/heif (até 10 MB).
+    Profile:
+      type: object
+      required:
+        - name
+        - phoneNumber
+        - document
+        - birthDate
+        - avatarUrl
+      properties:
+        name:
+          type: string
+        phoneNumber:
+          type:
+            - string
+            - "null"
+          description: Somente dígitos, com DDD.
+        document:
+          type:
+            - string
+            - "null"
+          description: CPF (somente dígitos).
+        birthDate:
+          type:
+            - string
+            - "null"
+          format: date
+        avatarUrl:
+          type:
+            - string
+            - "null"
+          format: uri
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - type
+        - status
+        - emailVerifiedAt
+        - twoFactorEnabled
+        - adminRole
+        - permissions
+        - createdAt
+        - profile
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        type:
+          $ref: "#/components/schemas/UserType"
+        status:
+          $ref: "#/components/schemas/UserStatus"
+        emailVerifiedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        twoFactorEnabled:
+          type: boolean
+        adminRole:
+          description: Só admin.
+          oneOf:
+            - $ref: "#/components/schemas/AdminRole"
+            - type: "null"
+        permissions:
+          type: array
+          description: Só admin (vazio para os demais).
+          items:
+            $ref: "#/components/schemas/Permission"
+        createdAt:
+          type: string
+          format: date-time
+        profile:
+          oneOf:
+            - $ref: "#/components/schemas/Profile"
+            - type: "null"
+    RegisterAccountInput:
+      type: object
+      required:
+        - email
+        - password
+        - name
+        - phoneNumber
+        - document
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        name:
+          type: string
+          minLength: 3
+          maxLength: 120
+        phoneNumber:
+          type: string
+          description: Telefone BR com DDD (10–13 dígitos; máscara aceita).
+        document:
+          type: string
+          description: CPF ou CNPJ válido (máscara aceita).
+    UpdateProfileInput:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 120
+        phoneNumber:
+          type:
+            - string
+            - "null"
+          description: Telefone BR com DDD.
+        document:
+          type:
+            - string
+            - "null"
+          description: CPF válido.
+        birthDate:
+          type:
+            - string
+            - "null"
+          format: date
+    AuthResponse:
+      type: object
+      required:
+        - user
+        - token
+        - refreshToken
+        - tokenExpiresAt
+        - sessionId
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+          description: Access token JWT (3 h).
+        refreshToken:
+          type: string
+          description: Refresh token JWT (30 dias).
+        tokenExpiresAt:
+          type: string
+          format: date-time
+        sessionId:
+          type: integer
+    TwoFactorChallenge:
+      type: object
+      required:
+        - requires2FA
+        - twoFactorToken
+      properties:
+        requires2FA:
+          type: boolean
+          const: true
+        twoFactorToken:
+          type: string
+          format: uuid
+          description: Válido por 5 minutos (máx. 5 tentativas).
+    TokenRefreshResponse:
+      type: object
+      required:
+        - token
+        - refreshToken
+        - tokenExpiresAt
+      properties:
+        token:
+          type: string
+        refreshToken:
+          type: string
+        tokenExpiresAt:
+          type: string
+          format: date-time
+    HealthCheck:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: ok, degraded ou error.
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        message:
+          type: string
+        error:
+          type: string
+      additionalProperties: true
+    AuditLog:
+      type: object
+      required:
+        - id
+        - admin
+        - action
+        - entityType
+        - entityId
+        - data
+        - ip
+        - createdAt
+      properties:
+        id:
+          type: integer
+        admin:
+          type:
+            - object
+            - "null"
+          required:
+            - id
+            - name
+            - email
+          properties:
+            id:
+              type: integer
+            name:
+              type:
+                - string
+                - "null"
+            email:
+              type: string
+              format: email
+        action:
+          type: string
+          description: "Ex.: `user.status`, `admin.create`, `admin.update`."
+        entityType:
+          type: string
+        entityId:
+          type:
+            - string
+            - "null"
+        data:
+          type:
+            - object
+            - "null"
+          additionalProperties: true
+        ip:
+          type:
+            - string
+            - "null"
+        createdAt:
+          type: string
+          format: date-time
+    ListingCard:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        title:
+          type: string
+        category:
+          type: string
+          enum:
+            - used
+            - off_plan
+            - under_construction
+        categoryLabel:
+          type: string
+        categorySlug:
+          type: string
+          description: usados | na-planta | em-construcao
+        type:
+          type: string
+          enum:
+            - apartamento
+            - casa
+            - cobertura
+            - casa_condominio
+            - terreno
+            - sala_comercial
+        price:
+          type: number
+          nullable: true
+          description: Reais; null = sob consulta
+        city:
+          type: string
+        state:
+          type: string
+        neighborhood:
+          type: string
+        bedrooms:
+          type: integer
+        suites:
+          type: integer
+        bathrooms:
+          type: integer
+        parking:
+          type: integer
+        area:
+          type: number
+          nullable: true
+          description: m²
+        cover:
+          type: string
+          nullable: true
+        photoCount:
+          type: integer
+        developer:
+          type: string
+          nullable: true
+        deliveryDate:
+          type: string
+          nullable: true
+          description: YYYY-MM
+        constructionProgress:
+          type: integer
+          nullable: true
+          description: 0–100 (só em construção)
+        featured:
+          type: boolean
+    ListingDetail:
+      allOf:
+        - $ref: "#/components/schemas/ListingCard"
+        - type: object
+          properties:
+            address:
+              type: string
+              nullable: true
+            description:
+              type: string
+            features:
+              type: array
+              items:
+                type: string
+            photos:
+              type: array
+              items:
+                type: string
+            updatedAt:
+              type: string
+              format: date-time
+            related:
+              type: array
+              items:
+                $ref: "#/components/schemas/ListingCard"

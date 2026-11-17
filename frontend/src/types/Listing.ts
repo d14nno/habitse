@@ -1,0 +1,64 @@
+export type CategoryKey = 'used' | 'off_plan' | 'under_construction'
+
+export interface ListingCard {
+    id: number
+    slug: string
+    title: string
+    category: CategoryKey
+    categoryLabel: string
+    categorySlug: string
+    type: string
+    price: number | null
+    city: string
+    state: string
+    neighborhood: string
+    bedrooms: number
+    suites: number
+    bathrooms: number
+    parking: number
+    area: number | null
+    cover: string | null
+    photoCount: number
+    developer: string | null
+    /** YYYY-MM */
+    deliveryDate: string | null
+    constructionProgress: number | null
+    featured: boolean
+}
+
+export interface ListingDetail extends ListingCard {
+    address: string | null
+    description: string
+    features: string[]
+    photos: string[]
+    updatedAt: string
+    related: ListingCard[]
+}
+
+export interface Paginated<T> {
+    data: T[]
+    pagination: { page: number, perPage: number, total: number, lastPage: number }
+}
+
+export interface Facets {
+    categories: { category: CategoryKey, total: number }[]
+    cities: { city: string, total: number }[]
+    neighborhoods: { city: string, neighborhood: string, total: number }[]
+    types: { type: string, total: number }[]
+    price: { min: number | null, max: number | null }
+}
+
+export type Sort = 'recent' | 'price_asc' | 'price_desc' | 'area_desc'
+
+/** Filtros da busca (também guardados na URL, para compartilhar e voltar com o botão do celular) */
+export interface Filters {
+    type?: string
+    city?: string
+    neighborhood?: string
+    minPrice?: number
+    maxPrice?: number
+    bedrooms?: number
+    parking?: number
+    q?: string
+    sort?: Sort
+}

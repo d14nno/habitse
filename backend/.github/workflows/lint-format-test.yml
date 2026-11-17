@@ -1,0 +1,77 @@
+name: Lint, Type check and Test
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - homolog
+  pull_request:
+    branches-ignore:
+      - main
+      - homolog
+
+env:
+  NODE_ENV: test
+  HASH_AUTH_SECRET: ci-secret-not-used-in-production
+  DATABASE_URL: postgresql://app:app@localhost:5432/app_test
+  TEST_DATABASE_URL: postgresql://app:app@localhost:5432/app_test
+  TEST_ADMIN_DATABASE_URL: postgresql://app:app@localhost:5432/postgres
+  REDIS_CACHE_URI: redis://localhost:6379/2
+
+jobs:
+  lint-format-test:
+    name: Lint, Type check and Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      # sem --fix (o script npm run lint corrige; aqui só verifica)
+      - name: ESLint
+        run: npx eslint --ext .ts,.js ./src
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Integration tests (Postgres + Redis)
+        run: npm run test:integration
+
+      - name: Build
+        run: npm run build

@@ -1,0 +1,10 @@
+# Caddy: HTTPS automático (Let's Encrypt) e proxy para a API. Só o subdomínio da API fica neste servidor;
+# o site (habitse.com.br) fica na Cloudflare Pages.
+api.habitse.com.br {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:3900
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+	}
+}
