@@ -21,6 +21,27 @@ export class InMemoryListingRepository implements ListingRepository {
         return created
     }
 
+    async upsertBySlug(listing: Listing): Promise<{ listing: Listing, created: boolean }> {
+        const index = this.listings.findIndex(item => item.slug === listing.slug)
+
+        if (index < 0) return { listing: await this.create(listing), created: true }
+
+        const current = this.listings[index].props
+        const updated = new Listing({
+            ...listing.props,
+            id: current.id,
+            slug: current.slug,
+            price: current.price,
+            featured: current.featured,
+            status: current.status,
+            createdAt: current.createdAt,
+            updatedAt: new Date()
+        })
+        this.listings[index] = updated
+
+        return { listing: updated, created: false }
+    }
+
     async findBySlug(slug: string): Promise<Listing | null> {
         return this.listings.find(item => item.slug === slug && item.isPublished) ?? null
     }

@@ -31,6 +31,11 @@ export interface ListingFacets {
 /** Só anúncios publicados aparecem na vitrine. */
 export interface ListingRepository {
     create(listing: Listing): Promise<Listing>
+    /**
+     * Cria o anúncio ou, se o endereço (slug) já existir, atualiza só o CONTEÚDO (textos, fotos, endereço, andamento).
+     * Preço, destaque, situação de publicação e data de criação são preservados: podem ter sido ajustados à mão.
+     */
+    upsertBySlug(listing: Listing): Promise<{ listing: Listing, created: boolean }>
     findBySlug(slug: string): Promise<Listing | null>
     findMany(filters: ListingFilters, sort: ListingSort, pagination: PaginationParams): Promise<Paginated<Listing>>
     /** Outros anúncios parecidos (mesma categoria, preferindo a mesma cidade) */

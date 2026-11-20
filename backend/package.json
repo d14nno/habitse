@@ -16,6 +16,7 @@
     "seed:run": "npx knex seed:run --knexfile ./src/shared/infra/knex/knexfile.ts",
     "seed:make": "npx knex seed:make --knexfile ./src/shared/infra/knex/knexfile.ts",
     "test:unit": "jest --config jest.unit.config.js",
+    "import:bambui": "ts-node --transpile-only -r tsconfig-paths/register ./src/shared/infra/cli/importBambui.ts",
     "admin:create": "ts-node --transpile-only -r tsconfig-paths/register ./src/shared/infra/cli/createAdmin.ts",
     "test:integration": "jest --config jest.integration.config.js --runInBand",
     "db:embedded": "node scripts/embedded-postgres.js",

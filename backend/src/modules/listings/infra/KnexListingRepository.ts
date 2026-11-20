@@ -44,6 +44,18 @@ export class KnexListingRepository implements ListingRepository {
         return toEntity(row)
     }
 
+    async upsertBySlug(listing: Listing): Promise<{ listing: Listing, created: boolean }> {
+        const existing = await connection(LISTINGS).where({ slug: listing.slug }).first()
+
+        if (!existing) return { listing: await this.create(listing), created: true }
+
+        // Preço, destaque, situação, slug e criação ficam como estão
+        const { id: _id, slug: _slug, price: _price, featured: _featured, status: _status, createdAt: _createdAt, ...content } = toRow(listing) as Record<string, unknown>
+        const [row] = await connection(LISTINGS).where({ id: existing.id }).update({ ...content, updatedAt: new Date() }).returning('*')
+
+        return { listing: toEntity(row), created: false }
+    }
+
     async findBySlug(slug: string): Promise<Listing | null> {
         const row = await this.published().where({ slug }).first()
         return row ? toEntity(row) : null
