@@ -79,3 +79,22 @@ Os arquivos `public/_redirects` (rotas do site abrindo direto) e `public/_header
 - Search Console (Google): adicione `habitse.com.br` e envie `https://api.habitse.com.br/sitemap.xml`.
 - Compartilhamento no WhatsApp: o site é uma SPA; a prévia (foto/título) ao colar o link de um imóvel mostra os dados genéricos do site. Para prévia por imóvel é preciso renderização no servidor — próxima etapa recomendada.
 - Atualizações: `git push` publica o site sozinho; na API, `git pull && npm ci && npm run build && npm run migrate:latest && pm2 reload habitse-api`.
+
+## Empreendimentos da Bambuí sem depender da API (catálogo estático)
+
+O site pode publicar os empreendimentos da Bambuí **sem a VPS**: a importação gera `frontend/public/data/empreendimentos.json` e
+`frontend/public/sitemap.xml`, e o Cloudflare Pages publica a cada `git push`. Se esse arquivo existe e tem anúncios, o site usa
+**só ele** (a API não é consultada); sem o arquivo, volta a usar a API. `VITE_LISTINGS_SOURCE=api` força a API.
+
+- **Atualização automática:** a rotina `.github/workflows/atualizar-bambui.yml` roda todo dia às 6h (Brasília), sempre que
+  `data/bambui-ajustes.json` muda e sob demanda (GitHub → *Actions* → *Atualizar empreendimentos da Bambuí* → *Run workflow*).
+  Só faz commit se algo mudou. Se o site da Bambuí estiver fora do ar ou o arquivo de ajustes tiver erro, a rotina falha e o site
+  continua com a versão anterior.
+- **Preço, registro de incorporação, previsão de entrega, destaque, publicar os já prontos:** edite `data/bambui-ajustes.json`
+  (guia em `data/LEIA-ME.md`) direto no GitHub. A importação nunca sobrescreve esse arquivo.
+- **Rodar à mão:** `cd backend && npm run export:bambui` (`--dry-run` só mostra; `--from-dir=<pasta>` lê páginas já salvas).
+- **Requisitos no GitHub:** *Settings → Actions → General → Workflow permissions* = *Read and write*; e a branch `main` sem
+  proteção que impeça o push do `habitse-bot`.
+- **Limites:** só os empreendimentos da Bambuí (não há cadastro de outros anúncios nesse modo); as fotos continuam apontando para
+  o site da Bambuí.
+

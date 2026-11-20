@@ -24,8 +24,10 @@ const totalOf = (key: string) => facets.value?.categories.find(item => item.cate
 
 function submit() {
     const busca = query.value.trim()
-    // Busca livre sempre parte das 3 vitrines juntas; a primeira com resultado é a de usados (mais procurada)
-    router.push({ path: '/usados', query: busca ? { busca } : {} })
+    // A busca livre abre a vitrine com mais imóveis (usados, se empatar ou se ainda não carregou)
+    const biggest = facets.value?.categories.slice().sort((a, b) => b.total - a.total)[0]
+    const slug = CATEGORIES.find(category => category.key === biggest?.category)?.slug ?? 'usados'
+    router.push({ path: `/${slug}`, query: busca ? { busca } : {} })
 }
 
 onMounted(async () => {

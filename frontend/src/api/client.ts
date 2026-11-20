@@ -1,4 +1,5 @@
 import { SITE } from '@/config'
+import { catalogFacets, getFromCatalog, listCatalog, loadCatalog } from '@/api/staticCatalog'
 import type { CategoryKey, Facets, Filters, ListingCard, ListingDetail, Paginated } from '@/types/Listing'
 
 export class ApiError extends Error {
@@ -40,8 +41,31 @@ export interface ListParams extends Filters {
     perPage?: number
 }
 
+/**
+ * De onde vêm os anúncios: se o site foi publicado com o catálogo estático (`/data/empreendimentos.json`, gerado pela
+ * importação da Bambuí), ele é a fonte e a API não é consultada. Sem catálogo (ou com `VITE_LISTINGS_SOURCE=api`),
+ * o site usa a API como sempre.
+ */
+const staticCatalog = () => (import.meta.env.VITE_LISTINGS_SOURCE === 'api' ? Promise.resolve(null) : loadCatalog())
+
 export const listingsApi = {
-    list: (params: ListParams, signal?: AbortSignal) => request<Paginated<ListingCard>>('/listings', params as Query, signal),
-    get: (slug: string, signal?: AbortSignal) => request<ListingDetail>(`/listings/${encodeURIComponent(slug)}`, {}, signal),
-    facets: (category?: CategoryKey, signal?: AbortSignal) => request<Facets>('/listings/facets', { category }, signal)
+    async list(params: ListParams, signal?: AbortSignal): Promise<Paginated<ListingCard>> {
+        const catalog = await staticCatalog()
+
+        return catalog ? listCatalog(catalog, params) : request<Paginated<ListingCard>>('/listings', params as Query, signal)
+    },
+    async get(slug: string, signal?: AbortSignal): Promise<ListingDetail> {
+        const catalog = await staticCatalog()
+        if (!catalog) return request<ListingDetail>(`/listings/${encodeURIComponent(slug)}`, {}, signal)
+
+        const item = getFromCatalog(catalog, slug)
+        if (!item) throw new ApiError(404, 'Imóvel não encontrado.')
+
+        return item
+    },
+    async facets(category?: CategoryKey, signal?: AbortSignal): Promise<Facets> {
+        const catalog = await staticCatalog()
+
+        return catalog ? catalogFacets(catalog, category) : request<Facets>('/listings/facets', { category }, signal)
+    }
 }

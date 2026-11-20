@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://api.habitse.com.br/sitemap.xml
+Sitemap: https://habitse.com.br/sitemap.xml

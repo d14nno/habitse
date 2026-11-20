@@ -31,7 +31,8 @@ export interface ImportOptions {
 
 export type ImportOutcome =
     | { slug: string, name: string, action: 'created' | 'updated', status: string, missing: string[] }
-    | { slug: string, action: 'skipped', reason: string }
+    /** `failed`: a página não pôde ser lida (rede, site fora do ar); sem ele, a página apenas não é de empreendimento */
+    | { slug: string, action: 'skipped', reason: string, failed?: boolean }
 
 const rangeText = (range: BambuiRange | null, unit = '') => {
     if (!range) return ''
@@ -175,7 +176,7 @@ export class BambuiImportService {
                 const saved = await this.listings.upsertBySlug(listing)
                 outcomes.push({ slug, name: project.name, action: saved.created ? 'created' : 'updated', status: saved.listing.props.status, missing })
             } catch (error) {
-                outcomes.push({ slug, action: 'skipped', reason: error instanceof Error ? error.message : String(error) })
+                outcomes.push({ slug, action: 'skipped', reason: error instanceof Error ? error.message : String(error), failed: true })
             }
         }
 

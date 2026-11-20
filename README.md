@@ -27,6 +27,11 @@ cd frontend && npm install && npm run dev      # http://localhost:5180
 - **Favoritos** salvos no aparelho (sem cadastro), barra de navegação inferior, botão flutuante de WhatsApp, SEO (título, descrição, JSON-LD, sitemap) e instalável (manifest).
 - Primeiro carregamento ≈ 45 KB de JavaScript comprimido.
 
+## Empreendimentos da Bambuí
+
+A Bambuí é a construtora dona dos empreendimentos anunciados. `npm run import:bambui` (banco) e `npm run export:bambui` (catálogo
+estático, sem VPS) leem as páginas públicas dela; veja o `DEPLOY.md` e `data/LEIA-ME.md`.
+
 ## Pendências conhecidas
 
 - Os 18 anúncios são **exemplos fictícios** (ilustrações em vez de fotos). Falta o **painel para cadastrar imóveis e enviar fotos** (a base de contas/admin já está pronta na API).

@@ -33,6 +33,8 @@ export interface ListingDetail extends ListingCard {
     photos: string[]
     updatedAt: string
     related: ListingCard[]
+    /** Registro de incorporação e incorporador (publicidade de empreendimento); só no catálogo estático */
+    incorporation?: string | null
 }
 
 export interface Paginated<T> {

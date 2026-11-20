@@ -138,6 +138,7 @@ watch(() => route.params.slug, slug => { if (slug && route.name === 'listing') l
                 <ProgressBar v-if="listing.constructionProgress !== null" :value="listing.constructionProgress" />
                 <p v-if="delivery">Previsão de entrega: <b>{{ delivery }}</b></p>
                 <p v-if="listing.developer">Construtora/Incorporadora: <b>{{ listing.developer }}</b></p>
+                <p v-if="listing.incorporation">Registro de incorporação: <b>{{ listing.incorporation }}</b></p>
             </section>
 
             <section class="block">
