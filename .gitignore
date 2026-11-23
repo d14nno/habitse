@@ -6,3 +6,6 @@ coverage/
 uploads/
 docker/
 *.log
+
+# Posts gerados para as redes (npm run posts)
+posts/

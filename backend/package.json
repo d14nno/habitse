@@ -23,7 +23,8 @@
     "db:embedded": "node scripts/embedded-postgres.js",
     "test:watch": "jest --config jest.unit.config.js --watchAll",
     "sync:drive": "ts-node --transpile-only -r tsconfig-paths/register ./src/shared/infra/cli/syncDrive.ts",
-    "sync:fotos": "ts-node --transpile-only -r tsconfig-paths/register ./src/shared/infra/cli/syncFotos.ts"
+    "sync:fotos": "ts-node --transpile-only -r tsconfig-paths/register ./src/shared/infra/cli/syncFotos.ts",
+    "posts": "ts-node --transpile-only -r tsconfig-paths/register ./src/shared/infra/cli/makePosts.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1148.0",
@@ -97,6 +98,7 @@
     "jest": "^27.5.1",
     "jest-junit": "^13.0.0",
     "pino-pretty": "^11.3.0",
+    "playwright-core": "^1.49.1",
     "prettier": "^3.2.5",
     "supertest": "^7.1.4",
     "ts-jest": "^27.1.5",

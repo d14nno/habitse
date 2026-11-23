@@ -43,3 +43,10 @@ Uma entrada por empreendimento; a chave é o final do endereço da página da Ba
 
 Erros de digitação (campo desconhecido, número em vez de texto, data fora do formato) **impedem** a atualização e aparecem na aba
 *Actions* do GitHub; o site continua com a versão anterior.
+
+## Posts para Instagram e Facebook
+
+`npm run posts` (na pasta `backend`) gera, para cada imóvel do catálogo, um carrossel 1080×1350 (capa com os dados, fotos e
+fechamento com o contato) e a legenda pronta, em `posts/<imóvel>/` (pasta fora do Git). Use `-- --only=praca-232,vox-home`
+para escolher imóveis. Rode `npm run export:bambui` antes se o catálogo estiver desatualizado. Os posts são publicados à mão
+(Meta Business Suite): as mesmas imagens e a mesma legenda servem para os dois.
