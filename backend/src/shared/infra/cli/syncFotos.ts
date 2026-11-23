@@ -13,6 +13,7 @@
  * As fotos escolhidas ficam no repositório (não há nova leitura do Drive a cada mês): rode de novo só quando houver
  * material novo. Fotos que você incluir à mão em `photos` no arquivo de ajustes valem mais que estas.
  */
+import { createHash } from 'crypto'
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'fs'
 import path from 'path'
 import sharp from 'sharp'
@@ -57,8 +58,10 @@ async function save(slug: string, index: number, original: Buffer): Promise<stri
     const dir = path.join(outDir, slug)
     mkdirSync(dir, { recursive: true })
 
-    const name = `${String(index + 1).padStart(2, '0')}.jpg`
-    await sharp(original).rotate().resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 78, mozjpeg: true }).toFile(path.join(dir, name))
+    const jpeg = await sharp(original).rotate().resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true }).jpeg({ quality: 78, mozjpeg: true }).toBuffer()
+    // O código no nome muda sempre que a imagem muda: o Cloudflare e os navegadores nunca servem a foto antiga
+    const name = `${String(index + 1).padStart(2, '0')}-${createHash('sha1').update(jpeg).digest('hex').slice(0, 8)}.jpg`
+    writeFileSync(path.join(dir, name), jpeg)
 
     return `/fotos/${slug}/${name}`
 }
