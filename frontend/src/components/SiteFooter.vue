@@ -18,6 +18,8 @@ import AppLogo from './AppLogo.vue'
             <div>
                 <b>Contato</b>
                 <a :href="whatsappLink(`Olá! Vim pelo site da ${SITE.name} e gostaria de ajuda para encontrar um imóvel.`)" target="_blank" rel="noopener">WhatsApp {{ SITE.phone }}</a>
+                <a v-if="SITE.social.facebook" :href="SITE.social.facebook" target="_blank" rel="noopener">Facebook</a>
+                <a v-if="SITE.social.instagram" :href="SITE.social.instagram" target="_blank" rel="noopener">Instagram</a>
                 <p class="small">{{ SITE.consultant }}<br>CRECI {{ SITE.creci }}</p>
             </div>
         </div>

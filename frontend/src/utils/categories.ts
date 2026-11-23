@@ -15,7 +15,7 @@ export const CATEGORIES: CategoryInfo[] = [
     { key: 'ready', slug: 'prontos-para-morar', label: 'Prontos para morar', short: 'Prontos para morar', description: 'Empreendimentos já concluídos, para mudança imediata, com a situação de cada imóvel informada com clareza.', status: 'Pronto para morar' },
     { key: 'off_plan', slug: 'na-planta', label: 'Lançamentos', short: 'Lançamentos', description: 'Empreendimentos na planta, com projeto, previsão de entrega e valores da tabela vigente.', status: 'Lançamento' },
     { key: 'under_construction', slug: 'em-construcao', label: 'Em construção', short: 'Em construção', description: 'Obras em andamento, com o estágio da construção e a previsão de entrega sempre à vista.', status: 'Em construção' },
-    { key: 'used', slug: 'oportunidades', label: 'Oportunidades de mercado', short: 'Oportunidades', description: 'Imóveis de revenda e de permuta, usados, com a situação de cada um informada.', status: 'Imóvel usado' }
+    { key: 'used', slug: 'oportunidades', label: 'Oportunidades de mercado', short: 'Oportunidades', description: 'Imóveis usados, com a situação de cada um informada.', status: 'Imóvel usado' }
 ]
 
 export const ALL_SLUG = 'imoveis'

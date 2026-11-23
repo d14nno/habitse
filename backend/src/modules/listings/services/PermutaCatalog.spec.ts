@@ -11,7 +11,7 @@ describe('permutas da Bambuí', () => {
 
         const listing = permutaToListing(file!.imoveis[0]).props
 
-        expect(listing).toMatchObject({ slug: 'permuta-palco', category: 'used', type: 'apartamento', status: 'published', price: 930000, neighborhood: 'Jardim América', address: 'Edifício Palco Vaca Brava', developer: null, features: ['Permuta Bambuí'] })
+        expect(listing).toMatchObject({ slug: 'permuta-palco', category: 'used', type: 'apartamento', status: 'published', price: 930000, neighborhood: 'Jardim América', address: 'Edifício Palco Vaca Brava', developer: null, features: [] })
         expect(listing.title).toBe('Apartamento de 3 quartos em Jardim América')
         expect(listing.description).toContain('98 m² privativos, no Edifício Palco Vaca Brava')
         expect(listing.description).toContain('R$ 960 por mês')
@@ -45,7 +45,7 @@ describe('casa de permuta e detalhes da ficha', () => {
 
         expect(listing.title).toBe('Casa de 4 quartos em Jardim América')
         expect(listing.description).toContain('Casa de 4 quartos, com 337,54 m² construídos em terreno de 376,48 m²')
-        expect(listing).toMatchObject({ suites: 1, parking: 4, features: ['Permuta Bambuí', 'Área gourmet e piscina'] })
+        expect(listing).toMatchObject({ suites: 1, parking: 4, features: ['Área gourmet e piscina'] })
     })
 
     it('rejeita suítes/vagas inválidas e destaque vazio', () => {

@@ -11,6 +11,11 @@ export const SITE = {
     consultant: 'Adriano Oliveira de Freitas',
     /** Registro profissional exibido no rodapé e nos dados estruturados */
     creci: import.meta.env.VITE_CRECI || '49.743/GO',
+    /** Perfis nas redes (só entram no site os que têm endereço) */
+    social: {
+        facebook: 'https://www.facebook.com/profile.php?id=61577189881433',
+        instagram: 'https://www.instagram.com/habitsego/'
+    },
     /** Em desenvolvimento usa o proxy do Vite (/api); em produção, a API do subdomínio */
     api: (import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'https://api.habitse.com.br')).replace(/\/$/, '')
 }

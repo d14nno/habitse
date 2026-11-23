@@ -42,7 +42,7 @@ onMounted(async () => {
         title: '',
         description: 'Uma seleção de imóveis para o seu próximo capítulo: prontos para morar, lançamentos, obras em andamento e oportunidades de mercado em Goiânia e região.',
         path: '/',
-        jsonLd: { '@context': 'https://schema.org', '@type': 'RealEstateAgent', name: SITE.name, url: SITE.url, telephone: '+55 62 99832-2361', identifier: `CRECI ${SITE.creci}`, employee: { '@type': 'Person', name: SITE.consultant } }
+        jsonLd: { '@context': 'https://schema.org', '@type': 'RealEstateAgent', name: SITE.name, url: SITE.url, telephone: '+55 62 99832-2361', identifier: `CRECI ${SITE.creci}`, sameAs: Object.values(SITE.social).filter(Boolean), employee: { '@type': 'Person', name: SITE.consultant } }
     })
 
     // A abertura não espera o resto: a foto fixa já está na tela

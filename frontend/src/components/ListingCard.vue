@@ -6,7 +6,6 @@ import { categoryByKey } from '@/utils/categories'
 import { formatDelivery, formatPrice, priceLead, summary } from '@/utils/format'
 import type { ListingCard } from '@/types/Listing'
 import AppIcon from './AppIcon.vue'
-import ProgressBar from './ProgressBar.vue'
 
 const props = defineProps<{ listing: ListingCard, eager?: boolean }>()
 
@@ -15,10 +14,7 @@ const favorite = computed(() => favorites.has(props.listing.slug))
 const delivery = computed(() => formatDelivery(props.listing.deliveryDate))
 const lead = computed(() => priceLead(props.listing.category, props.listing.price))
 /** Situação do imóvel, sempre visível: usado, em construção, lançamento ou pronto */
-const status = computed(() => {
-    const base = categoryByKey(props.listing.category).status
-    return props.listing.permuta ? `${base} · Permuta Bambuí` : base
-})
+const status = computed(() => categoryByKey(props.listing.category).status)
 
 /** Fotos do cartão: a capa e mais algumas, que se passam com o dedo (celular) ou com as setas (computador) */
 const photos = computed(() => (props.listing.gallery?.length ? props.listing.gallery : props.listing.cover ? [props.listing.cover] : []))
@@ -67,7 +63,6 @@ function go(step: number) {
             <p class="price"><small v-if="lead">{{ lead }}</small>{{ formatPrice(listing.price) }}</p>
 
             <template v-if="listing.category === 'under_construction' || listing.category === 'off_plan'">
-                <ProgressBar v-if="listing.category === 'under_construction' && listing.constructionProgress !== null" :value="listing.constructionProgress" compact />
                 <p v-if="delivery" class="meta">Entrega {{ delivery }}</p>
             </template>
         </RouterLink>

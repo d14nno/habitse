@@ -20,7 +20,7 @@ describe('ListingCard', () => {
         favorites.slugs.value = []
     })
 
-    it('mostra valor, local, características, entrega e andamento da obra', () => {
+    it('mostra valor, local, características e entrega, sem a barra de andamento da obra', () => {
         const text = mountCard(base).text()
         expect(text).toContain('R$')
         expect(text).toContain('559.000')
@@ -29,7 +29,7 @@ describe('ListingCard', () => {
         expect(text).toContain('Em construção')
         expect(text).toContain('a partir de')
         expect(text).toContain('Entrega ago/2027')
-        expect(text).toContain('Obra 62% concluída')
+        expect(text).not.toContain('concluída')
     })
 
     it('imóvel usado não mostra entrega nem andamento; sem valor vira "Sob consulta"', () => {
@@ -41,9 +41,10 @@ describe('ListingCard', () => {
         expect(text).not.toContain('Obra')
     })
 
-    it('permuta aparece como imóvel usado de permuta, com o valor direto (sem "a partir de")', () => {
+    it('imóvel de permuta aparece só como imóvel usado, sem menção a permuta, com o valor direto (sem "a partir de")', () => {
         const text = mountCard({ ...base, category: 'used', permuta: true, deliveryDate: null, developer: null, constructionProgress: null }).text()
-        expect(text).toContain('Imóvel usado · Permuta Bambuí')
+        expect(text).toContain('Imóvel usado')
+        expect(text).not.toMatch(/permuta|Bambuí/i)
         expect(text).not.toContain('a partir de')
     })
 

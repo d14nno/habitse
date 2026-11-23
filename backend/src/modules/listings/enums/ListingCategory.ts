@@ -13,7 +13,7 @@ export const LISTING_CATEGORIES = Object.values(ListingCategory)
 
 export const CATEGORY_INFO: Record<ListingCategory, { slug: string, label: string, description: string }> = {
     [ListingCategory.READY]: { slug: 'prontos-para-morar', label: 'Prontos para morar', description: 'Empreendimentos já concluídos, para mudança imediata.' },
-    [ListingCategory.USED]: { slug: 'oportunidades', label: 'Oportunidades de mercado', description: 'Imóveis de revenda e de permuta, usados, com a situação de cada um informada.' },
+    [ListingCategory.USED]: { slug: 'oportunidades', label: 'Oportunidades de mercado', description: 'Imóveis usados, com a situação de cada um informada.' },
     [ListingCategory.OFF_PLAN]: { slug: 'na-planta', label: 'Lançamentos', description: 'Empreendimentos na planta, com projeto, previsão de entrega e valores da tabela vigente.' },
     [ListingCategory.UNDER_CONSTRUCTION]: { slug: 'em-construcao', label: 'Em construção', description: 'Obras em andamento, com o estágio da construção e a previsão de entrega.' }
 }

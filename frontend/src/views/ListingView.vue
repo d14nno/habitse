@@ -12,7 +12,6 @@ import type { ListingDetail } from '@/types/Listing'
 import AppIcon from '@/components/AppIcon.vue'
 import ListingCard from '@/components/ListingCard.vue'
 import PhotoGallery from '@/components/PhotoGallery.vue'
-import ProgressBar from '@/components/ProgressBar.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -33,8 +32,7 @@ const lead = computed(() => (listing.value ? priceLead(listing.value.category, l
 const statusText = computed(() => {
     const item = listing.value
     if (!item) return ''
-    const base = categoryByKey(item.category).status
-    return item.permuta ? `${base} · Permuta Bambuí` : base
+    return categoryByKey(item.category).status
 })
 /** Transparência sobre a situação do imóvel (sem prometer o que não está documentado) */
 const statusNote = computed(() => {
@@ -153,9 +151,7 @@ watch(() => route.params.slug, slug => { if (slug && route.name === 'listing') l
 
             <section v-if="listing.category !== 'used'" class="block build">
                 <h2>{{ listing.category === 'under_construction' ? 'Andamento da obra' : listing.category === 'ready' ? 'Empreendimento' : 'Lançamento' }}</h2>
-                <ProgressBar v-if="listing.constructionProgress !== null" :value="listing.constructionProgress" />
                 <p v-if="delivery">Previsão de entrega: <b>{{ delivery }}</b></p>
-                <p v-if="listing.developer">Construtora/Incorporadora: <b>{{ listing.developer }}</b></p>
             </section>
 
             <p v-if="statusNote" class="status-note">{{ statusNote }}</p>

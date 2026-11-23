@@ -2,8 +2,8 @@ import { Listing } from '../entities/Listing'
 import { ListingCategory, ListingStatus, LISTING_STATUSES, LISTING_TYPES, ListingType } from '../enums/ListingCategory'
 
 /**
- * Imóveis de permuta da Bambuí (lista mensal do time de revendas), publicados na vitrine "Usados" com o selo
- * "Permuta Bambuí". O arquivo `data/bambui-permutas.json` é editado à mão (ou revisto todo mês com a lista nova).
+ * Imóveis de permuta da Bambuí (lista mensal do time de revendas), publicados na vitrine "Usados" sem selo
+ * nem menção na página. O arquivo `data/bambui-permutas.json` é editado à mão (ou revisto todo mês com a lista nova).
  * Ficam de fora, de propósito: endereço exato, unidade, ocupação, comissão e contato pessoal — o site mostra só
  * o bairro e o atendimento é feito pelo contato do próprio site.
  */
@@ -36,7 +36,6 @@ export interface PermutaFile {
     imoveis: Permuta[]
 }
 
-export const PERMUTA_BADGE = 'Permuta Bambuí'
 
 const FIELDS = ['id', 'tipo', 'cidade', 'bairro', 'condominio', 'quartos', 'suites', 'vagas', 'area', 'areaTerreno', 'destaques', 'valor', 'valorCondominio', 'status', 'fotos']
 
@@ -100,7 +99,7 @@ export function permutaToListing(permuta: Permuta): Listing {
     const lines = [
         land ? `Terreno de ${number(permuta.area)} m² em ${where}.` : built,
         permuta.valorCondominio ? `Taxa de condomínio: ${money(permuta.valorCondominio)} por mês.` : '',
-        'Imóvel de permuta da Bambuí, à venda. Fale com a gente para conhecer as condições e agendar uma visita.'
+        'Imóvel à venda. Fale com a gente para conhecer as condições e agendar uma visita.'
     ]
 
     return Listing.create({
@@ -120,7 +119,7 @@ export function permutaToListing(permuta: Permuta): Listing {
         parking: permuta.vagas ?? 0,
         area: permuta.area,
         description: lines.filter(Boolean).join('\n\n'),
-        features: [PERMUTA_BADGE, ...(permuta.destaques ?? [])],
+        features: permuta.destaques ?? [],
         photos: permuta.fotos ?? [],
         developer: null,
         deliveryDate: null,
