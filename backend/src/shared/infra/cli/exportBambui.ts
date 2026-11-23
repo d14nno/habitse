@@ -65,7 +65,7 @@ async function main() {
         process.exit(1)
     }
 
-    const photos = existsSync(photosPath) ? adjustmentsFromPhotos(readJson(photosPath) as Record<string, { file: string }[]>) : {}
+    const photos = existsSync(photosPath) ? adjustmentsFromPhotos(readJson(photosPath) as Record<string, { file: string, tag?: string }[]>) : {}
     const tables = existsSync(tablesPath) ? (readJson(tablesPath) as TableInfos) : {}
 
     const permutas = existsSync(permutasPath) ? validatePermutas(readJson(permutasPath)) : { file: null, errors: [] as string[] }

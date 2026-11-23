@@ -18,8 +18,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync
 import path from 'path'
 import sharp from 'sharp'
 
-import { DriveEntry, DriveFolder } from '@modules/listings/services/DriveFolder'
-import { IMAGE_FILE, PhotoGroup, pickPhotos, SKIPPED_FOLDER, slugForFolder, slugForPermutaFolder } from '@modules/listings/services/PhotoPicker'
+import { DriveFolder } from '@modules/listings/services/DriveFolder'
+import { IMAGE_FILE, PhotoGroup, photoTag, pickPhotos, SKIPPED_FOLDER, slugForFolder, slugForPermutaFolder } from '@modules/listings/services/PhotoPicker'
 
 const DEFAULT_FOLDER = '1UOtIM779pM9B_ZqhAQ_2HS9xM4DZLzwG'
 const MAX_PHOTOS = 12
@@ -31,7 +31,7 @@ const value = (name: string, fallback = '') => process.argv.find(arg => arg.star
 const fotosFile = path.resolve(root, 'data/bambui-fotos.json')
 const outDir = path.resolve(root, 'frontend/public/fotos')
 
-type Fotos = Record<string, { file: string, source: string }[]>
+type Fotos = Record<string, { file: string, source: string, tag?: 'fachada' | 'lazer' | '' }[]>
 
 const drive = new DriveFolder()
 
@@ -102,14 +102,14 @@ async function main() {
         }
 
         for (const { slug, groups } of targets.filter(target => !only || target.slug === only)) {
-            const picked: DriveEntry[] = pickPhotos(await groups(), MAX_PHOTOS)
+            const picked = pickPhotos(await groups(), MAX_PHOTOS)
 
             if (!picked.length) {
                 console.log(`➖ ${slug}: nenhuma imagem na pasta`)
                 continue
             }
 
-            const unchanged = !flag('force') && known[slug]?.length === picked.length && known[slug].every((photo, index) => photo.source === picked[index].id && existsSync(path.join(root, 'frontend/public', photo.file)))
+            const unchanged = !flag('force') && known[slug]?.length === picked.length && known[slug].every((photo, index) => photo.source === picked[index].id && photo.tag !== undefined && existsSync(path.join(root, 'frontend/public', photo.file)))
             if (unchanged || dryRun) {
                 console.log(`${unchanged ? '✔️ ' : '📥'} ${slug}: ${picked.length} foto(s)${unchanged ? ' (já no site)' : ''}`)
                 continue
@@ -117,7 +117,7 @@ async function main() {
 
             rmSync(path.join(outDir, slug), { recursive: true, force: true })
             result[slug] = []
-            for (let index = 0; index < picked.length; index++) result[slug].push({ file: await save(slug, index, await drive.download(picked[index].id)), source: picked[index].id })
+            for (let index = 0; index < picked.length; index++) result[slug].push({ file: await save(slug, index, await drive.download(picked[index].id)), source: picked[index].id, tag: photoTag(picked[index].path, picked[index].name) })
             console.log(`✅ ${slug}: ${picked.length} foto(s) copiadas`)
         }
     }

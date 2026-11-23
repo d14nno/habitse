@@ -53,7 +53,9 @@ const SORTS: Record<Sort, (a: CatalogItem, b: CatalogItem) => number> = {
     area_desc: byNullsLast(item => item.area, -1)
 }
 
-export const toCard = ({ address: _address, description: _description, features: _features, photos: _photos, updatedAt: _updatedAt, incorporation: _incorporation, priceNote: _priceNote, ...card }: CatalogItem): ListingCard => card
+export const CARD_PHOTOS = 5
+
+export const toCard = ({ address: _address, description: _description, features: _features, photos, updatedAt: _updatedAt, incorporation: _incorporation, priceNote: _priceNote, hero: _hero, ...card }: CatalogItem): ListingCard => ({ ...card, gallery: photos.slice(0, CARD_PHOTOS) })
 
 export function listCatalog(catalog: Catalog, query: CatalogQuery): Paginated<ListingCard> {
     const needle = query.q ? fold(query.q) : null
@@ -98,6 +100,25 @@ export function getFromCatalog(catalog: Catalog, slug: string): ListingDetail | 
 
 /** Selos que não são diferenciais do imóvel e não viram opção de filtro */
 const HIDDEN_FEATURES = ['Permuta Bambuí']
+
+export interface HeroSlide {
+    src: string
+    slug: string
+    title: string
+    kind: 'fachada' | 'lazer'
+}
+
+/**
+ * Fotos da abertura do site: de cada empreendimento (não de revenda), a fachada e uma foto de lazer, intercaladas
+ * (fachada A, lazer A, fachada B…), no máximo `limit`.
+ */
+export function heroSlides(catalog: Catalog, limit = 10): HeroSlide[] {
+    return catalog.items
+        .filter(item => item.category !== 'used' && item.hero?.length)
+        .sort((a, b) => Number(b.featured) - Number(a.featured) || a.id - b.id)
+        .flatMap(item => (item.hero ?? []).map((src, index): HeroSlide => ({ src, slug: item.slug, title: item.title, kind: index === 0 ? 'fachada' : 'lazer' })))
+        .slice(0, limit)
+}
 
 const count = <K extends string>(values: K[]) => {
     const totals = new Map<K, number>()

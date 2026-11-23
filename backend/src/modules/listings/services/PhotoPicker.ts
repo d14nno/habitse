@@ -35,6 +35,21 @@ const stem = (name: string) => name.replace(/\.[^.]+$/, '').toLowerCase()
 /** Arquivo de fachada pelo nome ("FACHADA 001.png", "BAM_ARES_FACHADA_4.1_ALTA.jpg") */
 export const isFacade = (name: string) => /fachada|facade/i.test(name)
 
+/** Foto escolhida: o arquivo do Drive e a pasta de onde veio */
+export type PickedPhoto = DriveEntry & { path: string }
+
+const LEISURE_FOLDER = /lazer|areas comuns|servicos/
+const LEISURE_FILE = /academia|piscina|lazer|brinquedoteca|gourmet|sal[aã]o|market|sauna|rooftop|playground|coworking|quadra|lounge|festas|cinema|churrasq|beauty|relax|terra[cç]o|(?:^|[^a-z])(?:bar|spa|pet|wash|meet|work)(?:[^a-z]|$)/i
+
+/** "fachada" (abre a galeria), "lazer" (áreas comuns) ou vazio, pelo nome do arquivo e da pasta */
+export function photoTag(path: string, name: string): 'fachada' | 'lazer' | '' {
+    if (isFacade(name)) return 'fachada'
+
+    const folder = path.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+
+    return LEISURE_FOLDER.test(folder) || LEISURE_FILE.test(name) ? 'lazer' : ''
+}
+
 /** Quantas fachadas abrem a galeria (a primeira é a capa) */
 const FACADES_FIRST = 2
 
@@ -42,8 +57,8 @@ const FACADES_FIRST = 2
  * Até `limit` fotos. A fachada vem primeiro (a capa do empreendimento); depois, pela prioridade da pasta, uma rodada de
  * cada pasta por vez (espaçadas dentro da pasta, para não repetir ângulo).
  */
-export function pickPhotos(groups: PhotoGroup[], limit = 12): DriveEntry[] {
-    const all = groups.flatMap(group => group.files).filter(file => file.kind === 'file' && IMAGE_FILE.test(file.name))
+export function pickPhotos(groups: PhotoGroup[], limit = 12): PickedPhoto[] {
+    const all = groups.flatMap(group => group.files.map(file => ({ ...file, path: group.path }))).filter(file => file.kind === 'file' && IMAGE_FILE.test(file.name))
     // O mesmo arquivo costuma existir em dois formatos (FACHADA (1).jpg e .jpeg): conta uma vez só
     const facades = all.filter(file => isFacade(file.name)).sort(naturalOrder).filter((file, index, list) => list.findIndex(other => stem(other.name) === stem(file.name)) === index).slice(0, FACADES_FIRST)
     const taken = new Set(facades.map(file => stem(file.name)))
@@ -52,7 +67,7 @@ export function pickPhotos(groups: PhotoGroup[], limit = 12): DriveEntry[] {
     return [...facades, ...rest]
 }
 
-function pickRound(groups: PhotoGroup[], limit: number): DriveEntry[] {
+function pickRound(groups: PhotoGroup[], limit: number): PickedPhoto[] {
     const ordered = groups
         .map(group => ({ ...group, files: group.files.filter(file => file.kind === 'file' && IMAGE_FILE.test(file.name)).sort(naturalOrder) }))
         .filter(group => group.files.length)
@@ -64,10 +79,10 @@ function pickRound(groups: PhotoGroup[], limit: number): DriveEntry[] {
     const spread = ordered.map(group => {
         const take = Math.min(quota, group.files.length)
 
-        return Array.from({ length: take }, (_, index) => group.files[Math.floor((index * group.files.length) / take)])
+        return Array.from({ length: take }, (_, index) => ({ ...group.files[Math.floor((index * group.files.length) / take)], path: group.path }))
     })
 
-    const picked: DriveEntry[] = []
+    const picked: PickedPhoto[] = []
     for (let round = 0; picked.length < limit && round < quota; round++) {
         for (const list of spread) if (list[round] && picked.length < limit) picked.push(list[round])
     }

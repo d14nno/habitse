@@ -26,6 +26,8 @@ export interface ListingCard {
     featured: boolean
     /** Imóvel de permuta da Bambuí (selo no cartão); só no catálogo estático */
     permuta?: boolean
+    /** Primeiras fotos, para passar no cartão (só no catálogo estático) */
+    gallery?: string[]
 }
 
 export interface ListingDetail extends ListingCard {
@@ -39,6 +41,8 @@ export interface ListingDetail extends ListingCard {
     incorporation?: string | null
     /** Observação sob o preço (tabela de origem e unidades disponíveis); só no catálogo estático */
     priceNote?: string | null
+    /** Fotos da abertura do site: uma fachada e uma de lazer (só no catálogo estático) */
+    hero?: string[]
 }
 
 export interface Paginated<T> {

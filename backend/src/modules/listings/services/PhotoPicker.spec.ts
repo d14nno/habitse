@@ -1,5 +1,5 @@
 import { DriveEntry } from './DriveFolder'
-import { folderPriority, isFacade, pickPhotos, slugForFolder, slugForPermutaFolder } from './PhotoPicker'
+import { folderPriority, isFacade, photoTag, pickPhotos, slugForFolder, slugForPermutaFolder } from './PhotoPicker'
 
 const files = (prefix: string, count: number): DriveEntry[] => Array.from({ length: count }, (_, index) => ({ id: `${prefix}${index + 1}`, name: `${prefix} (${index + 1}).jpg`, kind: 'file' as const }))
 
@@ -55,5 +55,23 @@ describe('fachada primeiro', () => {
         expect(isFacade('BAM_ARES_FACHADA_4.1_ALTA.jpg')).toBe(true)
         expect(isFacade('Fachada.jpg')).toBe(true)
         expect(isFacade('LIVING.jpg')).toBe(false)
+    })
+})
+
+describe('marca da foto: fachada, lazer ou nenhuma', () => {
+    it('reconhece pelo nome do arquivo e pela pasta', () => {
+        expect(photoTag('02 - FOTOS/Perspectivas', 'BAM_ARES_FACHADA_6_ALTA.jpg')).toBe('fachada')
+        expect(photoTag('02 - FOTOS/Perspectivas', 'BAM_ARES_BAR_2_ALTA.jpg')).toBe('lazer')
+        expect(photoTag('02 - FOTOS/Perspectivas', 'Academia BGreat Bosque dos Buritis.png')).toBe('lazer')
+        expect(photoTag('02 - Imagens/Perspectivas/02 - Lazer e Serviços', 'IMG 12.png')).toBe('lazer')
+        expect(photoTag('IMAGENS/ÁREAS COMUNS', 'foto.jpg')).toBe('lazer')
+        expect(photoTag('02 - FOTOS/Decorado', 'SALA 1.jpg')).toBe('')
+        expect(photoTag('02 - FOTOS/Decorado', 'CARPETE.jpg')).toBe('')
+    })
+
+    it('a foto escolhida leva o caminho da pasta de origem', () => {
+        const picked = pickPhotos([{ path: 'Perspectivas', files: [{ id: '1', name: 'LIVING.jpg', kind: 'file' }] }], 12)
+
+        expect(picked[0]).toMatchObject({ id: '1', path: 'Perspectivas' })
     })
 })

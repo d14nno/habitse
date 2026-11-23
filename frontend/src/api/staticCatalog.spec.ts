@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { catalogFacets, getFromCatalog, listCatalog, loadCatalog, resetCatalogCache, type Catalog, type CatalogItem } from './staticCatalog'
+import { catalogFacets, getFromCatalog, heroSlides, listCatalog, loadCatalog, resetCatalogCache, type Catalog, type CatalogItem } from './staticCatalog'
 
 const item = (id: number, extra: Partial<CatalogItem> = {}): CatalogItem => ({
     id, slug: `imovel-${id}`, title: `Imóvel ${id}`, category: 'under_construction', categoryLabel: 'Em construção', categorySlug: 'em-construcao', type: 'apartamento',
@@ -35,6 +35,8 @@ describe('catálogo estático: mesmas regras da API', () => {
         expect(card).not.toHaveProperty('photos')
         expect(card).not.toHaveProperty('incorporation')
         expect(card).not.toHaveProperty('priceNote')
+        expect(card).not.toHaveProperty('hero')
+        expect(card.gallery).toEqual(['https://x.test/c.jpg'])
         expect(card).toHaveProperty('cover')
     })
 
@@ -115,6 +117,30 @@ describe('filtros de área, suítes, entrega e diferenciais (só o que está cad
         expect(facets.features).toEqual(['Piscina', 'Academia', 'Vista para a praça'])
         expect(facets.deliveryYears).toEqual([2028, 2029])
         expect(catalogFacets(rich, 'used').features).toEqual(['Vista para a praça'])
+    })
+})
+
+describe('abertura do site e galeria do cartão', () => {
+    it('intercala fachada e lazer dos empreendimentos (revenda fica de fora) e respeita o limite', () => {
+        const hero: Catalog = {
+            version: 1,
+            items: [
+                item(1, { hero: ['/a-fachada.jpg', '/a-lazer.jpg'] }),
+                item(2, { hero: ['/b-fachada.jpg'], featured: true }),
+                item(3, { category: 'used', categoryLabel: 'Oportunidades de mercado', categorySlug: 'oportunidades', hero: ['/x.jpg'] }),
+                item(4, { hero: [] })
+            ]
+        }
+
+        expect(heroSlides(hero).map(slide => [slide.src, slide.kind])).toEqual([['/b-fachada.jpg', 'fachada'], ['/a-fachada.jpg', 'fachada'], ['/a-lazer.jpg', 'lazer']])
+        expect(heroSlides(hero, 2)).toHaveLength(2)
+        expect(heroSlides({ version: 1, items: [] })).toEqual([])
+    })
+
+    it('o cartão leva só as primeiras fotos', () => {
+        const photos = Array.from({ length: 12 }, (_, index) => `/p${index}.jpg`)
+
+        expect(listCatalog({ version: 1, items: [item(1, { photos })] }, {}).data[0].gallery).toEqual(photos.slice(0, 5))
     })
 })
 

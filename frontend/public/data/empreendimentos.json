@@ -53,9 +53,13 @@
         "/fotos/areiao-1141/11-557815df.jpg",
         "/fotos/areiao-1141/12-0cd416f4.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": "R-13-292.595, junto ao Cartório de Registro de Imóveis da 1° Zona de Goiânia/GO",
       "priceNote": "Tabela de novembro de 2026 · 63 unidades disponíveis",
+      "hero": [
+        "/fotos/areiao-1141/01-07fce845.jpg",
+        "/fotos/areiao-1141/03-7f46495b.jpg"
+      ],
       "permuta": false
     },
     {
@@ -100,9 +104,13 @@
         "/fotos/ares-marista/11-b1c0664e.jpg",
         "/fotos/ares-marista/12-361e8edd.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": "R-2-359.913 de 16/07/2021 no Cartório de Registro de Imóveis da 1ª Circunscrição de Goiânia-GO",
       "priceNote": "Tabela de novembro de 2026 · 5 unidades disponíveis",
+      "hero": [
+        "/fotos/ares-marista/01-140a252b.jpg",
+        "/fotos/ares-marista/03-09b63252.jpg"
+      ],
       "permuta": false
     },
     {
@@ -145,9 +153,13 @@
         "/fotos/b-great-bosque-dos-buritis/11-b9a36250.jpg",
         "/fotos/b-great-bosque-dos-buritis/12-19dab8a9.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": "Tabela de novembro de 2026 · 26 unidades disponíveis",
+      "hero": [
+        "/fotos/b-great-bosque-dos-buritis/01-069771d5.jpg",
+        "/fotos/b-great-bosque-dos-buritis/03-ce7c95e9.jpg"
+      ],
       "permuta": false
     },
     {
@@ -190,9 +202,13 @@
         "/fotos/bgreat-nova-suica/11-94dbed99.jpg",
         "/fotos/bgreat-nova-suica/12-a4e8222b.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": "R-12-98.393 no Cartório de Registro de Imóveis da 1ª Circunscrição de Goiânia-GO",
       "priceNote": "Tabela de novembro de 2026 · 71 unidades disponíveis",
+      "hero": [
+        "/fotos/bgreat-nova-suica/01-8ac0e371.jpg",
+        "/fotos/bgreat-nova-suica/11-94dbed99.jpg"
+      ],
       "permuta": false
     },
     {
@@ -240,9 +256,13 @@
         "/fotos/marista-262/11-4348b5b0.jpg",
         "/fotos/marista-262/12-e17df393.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": "Tabela de novembro de 2026 · 58 unidades disponíveis",
+      "hero": [
+        "/fotos/marista-262/01-0d841919.jpg",
+        "/fotos/marista-262/04-037de1d4.jpg"
+      ],
       "permuta": false
     },
     {
@@ -287,9 +307,10 @@
         "/fotos/permuta-edificio-estevao/08-6e12a3aa.jpg",
         "/fotos/permuta-edificio-estevao/09-23ce1085.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": null,
+      "hero": [],
       "permuta": true
     },
     {
@@ -337,9 +358,10 @@
         "/fotos/permuta-gran-campinas/10-3a7a1236.jpg",
         "/fotos/permuta-gran-campinas/11-cb093e74.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": null,
+      "hero": [],
       "permuta": true
     },
     {
@@ -379,9 +401,10 @@
         "/fotos/permuta-lote-garavelo/03-98d5642b.jpg",
         "/fotos/permuta-lote-garavelo/04-00fe188b.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": null,
+      "hero": [],
       "permuta": true
     },
     {
@@ -417,9 +440,10 @@
       "photos": [
         "/fotos/permuta-lote-santos-dumont/01-0f76bcec.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": null,
+      "hero": [],
       "permuta": true
     },
     {
@@ -452,9 +476,10 @@
         "Lote de 10 x 20 m"
       ],
       "photos": [],
-      "updatedAt": "2026-11-23T13:44:37.224Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": null,
+      "hero": [],
       "permuta": true
     },
     {
@@ -490,9 +515,10 @@
         "/fotos/permuta-lote-talisma/02-57c709da.jpg",
         "/fotos/permuta-lote-talisma/03-ab140e9d.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": null,
+      "hero": [],
       "permuta": true
     },
     {
@@ -524,9 +550,10 @@
         "Permuta Bambuí"
       ],
       "photos": [],
-      "updatedAt": "2026-11-23T13:44:37.224Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": null,
+      "hero": [],
       "permuta": true
     },
     {
@@ -558,9 +585,10 @@
         "Permuta Bambuí"
       ],
       "photos": [],
-      "updatedAt": "2026-11-23T13:44:37.224Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": null,
+      "hero": [],
       "permuta": true
     },
     {
@@ -597,9 +625,10 @@
         "/fotos/permuta-palco-vaca-brava/01-3f0ff57b.jpg",
         "/fotos/permuta-palco-vaca-brava/02-dd22af32.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": null,
+      "hero": [],
       "permuta": true
     },
     {
@@ -635,9 +664,10 @@
       "photos": [
         "/fotos/permuta-sobrado-jardins-madri/01-2c23f026.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": null,
+      "hero": [],
       "permuta": true
     },
     {
@@ -677,9 +707,10 @@
         "/fotos/permuta-sobrado-nova-suica/06-b2806a6c.jpg",
         "/fotos/permuta-sobrado-nova-suica/07-d1d52d90.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": null,
       "priceNote": null,
+      "hero": [],
       "permuta": true
     },
     {
@@ -726,9 +757,13 @@
         "/fotos/praca-232/11-ad17f380.jpg",
         "/fotos/praca-232/12-b0393ee3.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": "R-3-379.445 no Cartório de Registro de Imóveis da 1ª Circunscrição de Goiânia-GO",
       "priceNote": "Tabela de novembro de 2026 · 40 unidades disponíveis",
+      "hero": [
+        "/fotos/praca-232/01-2eb7c206.jpg",
+        "/fotos/praca-232/03-4656b92e.jpg"
+      ],
       "permuta": false
     },
     {
@@ -777,9 +812,13 @@
         "/fotos/vox-home/11-65545532.jpg",
         "/fotos/vox-home/12-1b2451c8.jpg"
       ],
-      "updatedAt": "2026-11-23T16:04:57.041Z",
+      "updatedAt": "2026-11-23T16:20:54.063Z",
       "incorporation": "R-3-343.493 no Cartório de Registro de Imóveis da 1ª Circunscrição de Goiânia-GO",
       "priceNote": "Tabela de novembro de 2026 · 2 unidades disponíveis",
+      "hero": [
+        "/fotos/vox-home/01-8d9fa422.jpg",
+        "/fotos/vox-home/02-9d602c1c.jpg"
+      ],
       "permuta": false
     }
   ]

@@ -6,14 +6,17 @@ import { listingsApi } from '@/api/client'
 import { setSeo } from '@/composables/useSeo'
 import { SITE, whatsappLink } from '@/config'
 import { ALL_SLUG, CATEGORIES } from '@/utils/categories'
+import type { HeroSlide } from '@/api/staticCatalog'
 import type { CategoryKey, Facets, ListingCard as Card } from '@/types/Listing'
 import CardSkeleton from '@/components/CardSkeleton.vue'
+import HeroCarousel from '@/components/HeroCarousel.vue'
 import ListingCard from '@/components/ListingCard.vue'
 import UpgradeSheet from '@/components/UpgradeSheet.vue'
 
 const router = useRouter()
 
 const featured = ref<Card[]>([])
+const slides = ref<HeroSlide[]>([])
 const facets = ref<Facets | null>(null)
 const covers = ref<Partial<Record<CategoryKey, { cover: string | null, total: number }>>>({})
 const loading = ref(true)
@@ -42,6 +45,9 @@ onMounted(async () => {
         jsonLd: { '@context': 'https://schema.org', '@type': 'RealEstateAgent', name: SITE.name, url: SITE.url, telephone: '+55 62 99832-2361', identifier: `CRECI ${SITE.creci}`, employee: { '@type': 'Person', name: SITE.consultant } }
     })
 
+    // A abertura não espera o resto: a foto fixa já está na tela
+    listingsApi.hero().then(list => { slides.value = list }).catch(() => undefined)
+
     try {
         const [highlighted, options, ...byCategory] = await Promise.all([
             listingsApi.list({ featured: true, perPage: 6 }),
@@ -64,7 +70,7 @@ onMounted(async () => {
 <template>
     <div>
         <section class="hero">
-            <img class="bg" src="/img/abertura.jpg" alt="Fachada de edifício residencial ao entardecer" fetchpriority="high" width="1280" height="1600">
+            <HeroCarousel :slides="slides" first="/img/abertura.jpg" first-alt="Fachada de edifício residencial ao entardecer" />
             <div class="scrim" />
             <div class="container inner">
                 <h1>Uma seleção de imóveis para o seu próximo capítulo.</h1>
@@ -157,9 +163,8 @@ onMounted(async () => {
 
 <style scoped>
 .hero { position: relative; min-height: 600px; display: flex; align-items: flex-end; color: var(--bg); overflow: hidden; background: var(--brand-dark); }
-.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; }
-.scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(38, 43, 41, .25) 0%, rgba(38, 43, 41, .12) 35%, rgba(38, 43, 41, .8) 100%); }
-.inner { position: relative; padding-top: 80px; padding-bottom: 104px; }
+.scrim { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(38, 43, 41, .25) 0%, rgba(38, 43, 41, .12) 35%, rgba(38, 43, 41, .8) 100%); }
+.inner { position: relative; z-index: 2; padding-top: 80px; padding-bottom: 104px; }
 .hero .eyebrow { color: #eae5da; }
 h1 { max-width: 14ch; margin-top: 16px; font-size: clamp(2.3rem, 8vw, 4.3rem); line-height: 1.04; font-weight: 400; letter-spacing: -.02em; }
 .lead { margin-top: 18px; max-width: 34ch; font-size: 1.1rem; line-height: 1.55; color: #eae5da; }

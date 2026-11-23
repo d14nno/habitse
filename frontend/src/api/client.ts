@@ -1,5 +1,5 @@
 import { SITE } from '@/config'
-import { catalogFacets, getFromCatalog, listCatalog, loadCatalog } from '@/api/staticCatalog'
+import { catalogFacets, getFromCatalog, heroSlides, listCatalog, loadCatalog, type HeroSlide } from '@/api/staticCatalog'
 import type { CategoryKey, Facets, Filters, ListingCard, ListingDetail, Paginated } from '@/types/Listing'
 
 export class ApiError extends Error {
@@ -69,6 +69,12 @@ export const listingsApi = {
         if (!item) throw new ApiError(404, 'Imóvel não encontrado.')
 
         return item
+    },
+    /** Fotos da abertura (só no catálogo estático; sem ele, a abertura fica com a foto fixa) */
+    async hero(): Promise<HeroSlide[]> {
+        const catalog = await staticCatalog()
+
+        return catalog ? heroSlides(catalog) : []
     },
     async facets(category?: CategoryKey, signal?: AbortSignal): Promise<Facets> {
         const catalog = await staticCatalog()

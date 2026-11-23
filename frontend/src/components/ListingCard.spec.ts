@@ -59,3 +59,17 @@ describe('ListingCard', () => {
         expect(useFavorites().has('obra-1')).toBe(false)
     })
 })
+
+describe('ListingCard: fotos que se passam', () => {
+    it('com várias fotos mostra uma por vez, setas só quando há para onde ir; sem galeria usa a capa', () => {
+        const wrapper = mountCard({ ...base, gallery: ['/1.jpg', '/2.jpg', '/3.jpg'] })
+
+        expect(wrapper.findAll('img')).toHaveLength(3)
+        expect(wrapper.find('img').attributes('alt')).toBe('Residencial Pôr do Sol')
+        expect(wrapper.findAll('img')[1].attributes('alt')).toBe('')
+        expect(wrapper.find('button[aria-label="Próxima foto"]').exists()).toBe(true)
+        expect(wrapper.find('button[aria-label="Foto anterior"]').exists()).toBe(false)
+        expect(mountCard(base).findAll('img')).toHaveLength(1)
+        expect(mountCard(base).find('button[aria-label="Próxima foto"]').exists()).toBe(false)
+    })
+})

@@ -30,13 +30,15 @@ export interface Adjustment {
     area?: number | null
     category?: ListingProps['category']
     photos?: string[]
+    /** Fotos da abertura do site: uma fachada e uma de lazer */
+    hero?: string[]
     /** Observação sob o preço (ex.: "Tabela de novembro de 2026 · 40 unidades disponíveis") */
     priceNote?: string | null
 }
 
 export type Adjustments = Record<string, Adjustment>
 
-export type CatalogItem = ReturnType<typeof ListingMapper.toDetail> & { incorporation: string | null, priceNote: string | null, permuta: boolean }
+export type CatalogItem = ReturnType<typeof ListingMapper.toDetail> & { incorporation: string | null, priceNote: string | null, hero: string[], permuta: boolean }
 
 export interface Catalog {
     version: 1
@@ -44,7 +46,7 @@ export interface Catalog {
 }
 
 const COUNTS = ['bedrooms', 'suites', 'bathrooms', 'parking'] as const
-const KNOWN = ['price', 'deliveryDate', 'incorporation', 'priceNote', 'featured', 'status', 'title', 'description', 'address', 'area', 'category', 'photos', ...COUNTS]
+const KNOWN = ['price', 'deliveryDate', 'incorporation', 'priceNote', 'featured', 'status', 'title', 'description', 'address', 'area', 'category', 'photos', 'hero', ...COUNTS]
 
 /** Confere o arquivo de ajustes (editado à mão): devolve os erros em português, um por problema */
 export function validateAdjustments(raw: unknown): { adjustments: Adjustments, errors: string[] } {
@@ -63,11 +65,12 @@ export function validateAdjustments(raw: unknown): { adjustments: Adjustments, e
 
         for (const key of Object.keys(adjustment)) if (!KNOWN.includes(key)) fail(key, `campo desconhecido (use: ${KNOWN.join(', ')})`)
 
-        const { price, deliveryDate, incorporation, priceNote, featured, status, title, description, address, area, category, photos } = adjustment
+        const { price, deliveryDate, incorporation, priceNote, hero, featured, status, title, description, address, area, category, photos } = adjustment
 
         if (price !== undefined && price !== null && !(typeof price === 'number' && Number.isFinite(price) && price >= 0)) fail('price', 'use um número em reais (ex.: 1450000) ou null')
         if (deliveryDate !== undefined && deliveryDate !== null && !(typeof deliveryDate === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(deliveryDate))) fail('deliveryDate', 'use AAAA-MM (ex.: "2028-12") ou null')
         if (incorporation !== undefined && incorporation !== null && !(typeof incorporation === 'string' && incorporation.length <= 300)) fail('incorporation', 'use um texto de até 300 caracteres ou null')
+        if (hero !== undefined && !(Array.isArray(hero) && hero.every(url => typeof url === 'string' && /^https?:\/\/|^\//.test(url)))) fail('hero', 'use uma lista de endereços de imagem (https://… ou /caminho)')
         if (priceNote !== undefined && priceNote !== null && !(typeof priceNote === 'string' && priceNote.length <= 160)) fail('priceNote', 'use um texto de até 160 caracteres ou null')
         if (featured !== undefined && typeof featured !== 'boolean') fail('featured', 'use true ou false')
         if (status !== undefined && !LISTING_STATUSES.includes(status as ListingStatus)) fail('status', `use ${LISTING_STATUSES.join(', ')}`)
@@ -105,11 +108,11 @@ export function canonicalPlaces(items: CatalogItem[]): CatalogItem[] {
 }
 
 /** Aplica o ajuste manual sobre o anúncio importado (o que não foi ajustado fica como veio do site) */
-export function applyAdjustment(listing: Listing, adjustment: Adjustment | undefined): { listing: Listing, incorporation: string | null, priceNote: string | null } {
-    const { incorporation = null, priceNote = null, ...fields } = adjustment ?? {}
+export function applyAdjustment(listing: Listing, adjustment: Adjustment | undefined): { listing: Listing, incorporation: string | null, priceNote: string | null, hero: string[] } {
+    const { incorporation = null, priceNote = null, hero = [], ...fields } = adjustment ?? {}
     const clean = Object.fromEntries(Object.entries(fields).filter(([, value]) => value !== undefined))
 
-    return { listing: Listing.create({ ...listing.props, ...clean } as ListingProps), incorporation, priceNote }
+    return { listing: Listing.create({ ...listing.props, ...clean } as ListingProps), incorporation, priceNote, hero }
 }
 
 /**
@@ -123,11 +126,11 @@ export function buildCatalog(imported: Listing[], adjustments: Adjustments, prev
     const sorted = [...imported].sort((a, b) => a.slug.localeCompare(b.slug))
 
     sorted.forEach((original, index) => {
-        const { listing, incorporation, priceNote } = applyAdjustment(original, adjustments[original.slug])
+        const { listing, incorporation, priceNote, hero } = applyAdjustment(original, adjustments[original.slug])
         if (!listing.isPublished) return
 
         const detail = ListingMapper.toDetail(new Listing({ ...listing.props, id: index + 1, updatedAt: now }))
-        const item: CatalogItem = { ...detail, incorporation, priceNote, permuta: original.slug.startsWith('permuta-') }
+        const item: CatalogItem = { ...detail, incorporation, priceNote, hero, permuta: original.slug.startsWith('permuta-') }
 
         const old = before.get(item.slug)
         const sameContent = old && JSON.stringify({ ...old, updatedAt: '', id: 0 }) === JSON.stringify({ ...item, updatedAt: '', id: 0 })
@@ -148,8 +151,13 @@ export function adjustmentsFromTables(tables: TableInfos, now = new Date()): Adj
 }
 
 /** Fotos copiadas do Drive para o site (`data/bambui-fotos.json`); entram abaixo dos ajustes feitos à mão */
-export function adjustmentsFromPhotos(fotos: Record<string, { file: string }[]>): Adjustments {
-    return Object.fromEntries(Object.entries(fotos).filter(([, photos]) => photos.length).map(([slug, photos]) => [slug, { photos: photos.map(photo => photo.file) }]))
+export function adjustmentsFromPhotos(fotos: Record<string, { file: string, tag?: string }[]>): Adjustments {
+    return Object.fromEntries(Object.entries(fotos).filter(([, photos]) => photos.length).map(([slug, photos]) => {
+        // Abertura do site: a primeira fachada e a primeira foto de lazer
+        const hero = [photos.find(photo => photo.tag === 'fachada'), photos.find(photo => photo.tag === 'lazer')].filter((photo): photo is { file: string, tag?: string } => photo !== undefined).map(photo => photo.file)
+
+        return [slug, { photos: photos.map(photo => photo.file), ...(hero.length ? { hero } : {}) }]
+    }))
 }
 
 export function mergeAdjustments(base: Adjustments, manual: Adjustments): Adjustments {

@@ -107,6 +107,12 @@ describe('fotos copiadas do Drive', () => {
         const fromPhotos = adjustmentsFromPhotos({ 'praca-232': [{ file: '/fotos/praca-232/01.jpg' }, { file: '/fotos/praca-232/02.jpg' }], vazio: [] })
 
         expect(fromPhotos).toEqual({ 'praca-232': { photos: ['/fotos/praca-232/01.jpg', '/fotos/praca-232/02.jpg'] } })
+
+        const withTags = adjustmentsFromPhotos({ 'praca-232': [{ file: '/a.jpg', tag: 'fachada' }, { file: '/b.jpg', tag: '' }, { file: '/c.jpg', tag: 'lazer' }, { file: '/d.jpg', tag: 'lazer' }], x: [{ file: '/z.jpg', tag: '' }] })
+        expect(withTags['praca-232'].hero).toEqual(['/a.jpg', '/c.jpg'])
+        expect(withTags.x.hero).toBeUndefined()
+        expect(buildCatalog([listing('praca-232')], withTags, null).items[0].hero).toEqual(['/a.jpg', '/c.jpg'])
+        expect(buildCatalog([listing('praca-232')], {}, null).items[0].hero).toEqual([])
         expect(mergeAdjustments(fromPhotos, { 'praca-232': { photos: ['/outra.jpg'] } })['praca-232'].photos).toEqual(['/outra.jpg'])
         expect(buildCatalog([listing('praca-232')], fromPhotos, null).items[0]).toMatchObject({ cover: '/fotos/praca-232/01.jpg', photoCount: 2 })
     })
