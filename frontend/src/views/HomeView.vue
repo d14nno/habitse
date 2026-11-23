@@ -162,14 +162,14 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.hero { position: relative; min-height: 600px; display: flex; align-items: flex-end; color: var(--bg); overflow: hidden; background: var(--brand-dark); }
+.hero { position: relative; min-height: 600px; display: flex; align-items: flex-end; color: var(--bg); overflow: hidden; isolation: isolate; background: var(--brand-dark); }
 .scrim { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(38, 43, 41, .25) 0%, rgba(38, 43, 41, .12) 35%, rgba(38, 43, 41, .8) 100%); }
 .inner { position: relative; z-index: 2; padding-top: 80px; padding-bottom: 104px; }
 .hero .eyebrow { color: #eae5da; }
 h1 { max-width: 14ch; margin-top: 16px; font-size: clamp(2.3rem, 8vw, 4.3rem); line-height: 1.04; font-weight: 400; letter-spacing: -.02em; }
 .lead { margin-top: 18px; max-width: 34ch; font-size: 1.1rem; line-height: 1.55; color: #eae5da; }
 .cta { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; }
-.search { position: relative; margin-top: -56px; display: grid; gap: 14px; padding: 20px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); grid-template-columns: 1fr 1fr; }
+.search { position: relative; z-index: 2; margin-top: -56px; display: grid; gap: 14px; padding: 20px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); grid-template-columns: 1fr 1fr; }
 .f { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .f.wide { grid-column: 1 / -1; }
 .f span { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; color: var(--ink-3); }

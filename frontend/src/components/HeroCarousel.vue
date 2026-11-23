@@ -67,11 +67,11 @@ const label = (slide: { title: string, kind: string }) => (slide.title ? `${slid
 .hero-bg { position: absolute; inset: 0; }
 .slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; opacity: 0; transition: opacity 1.6s ease; }
 .slide.on { opacity: 1; }
-.controls { position: absolute; right: 16px; bottom: 16px; z-index: 3; display: flex; align-items: center; gap: 12px; }
+.controls { position: absolute; right: 16px; bottom: 76px; z-index: 3; display: flex; align-items: center; gap: 12px; }
 .caption { padding: 6px 12px; background: rgba(38, 43, 41, .6); color: var(--bg); font-size: .8rem; }
 .caption:hover { background: rgba(38, 43, 41, .85); }
 .pause { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid rgba(245, 242, 235, .6); background: rgba(38, 43, 41, .5); color: var(--bg); border-radius: 50%; }
 .pause:hover { background: rgba(38, 43, 41, .8); }
 @media (prefers-reduced-motion: reduce) { .slide { transition: none; } }
-@media (min-width: 760px) { .controls { right: 24px; bottom: 24px; } }
+@media (min-width: 760px) { .controls { right: 24px; bottom: 80px; } }
 </style>
