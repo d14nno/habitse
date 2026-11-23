@@ -21,6 +21,10 @@ export function filtersFromQuery(query: RawQuery): Filters {
         maxPrice: number(query.max),
         bedrooms: number(query.quartos),
         parking: number(query.vagas),
+        minArea: number(query.area),
+        suites: number(query.suites),
+        deliveryUntil: number(query.entrega),
+        feature: text(query.diferencial),
         q: text(query.busca),
         sort: sort && SORTS.includes(sort) && sort !== 'recent' ? sort : undefined
     }
@@ -30,11 +34,11 @@ export function filtersFromQuery(query: RawQuery): Filters {
 export function filtersToQuery(filters: Filters): Record<string, string> {
     const entries: [string, string | number | undefined][] = [
         ['tipo', filters.type], ['cidade', filters.city], ['bairro', filters.neighborhood], ['min', filters.minPrice], ['max', filters.maxPrice],
-        ['quartos', filters.bedrooms], ['vagas', filters.parking], ['busca', filters.q], ['ordem', filters.sort && filters.sort !== 'recent' ? filters.sort : undefined]
+        ['quartos', filters.bedrooms], ['vagas', filters.parking], ['area', filters.minArea], ['suites', filters.suites], ['entrega', filters.deliveryUntil], ['diferencial', filters.feature], ['busca', filters.q], ['ordem', filters.sort && filters.sort !== 'recent' ? filters.sort : undefined]
     ]
     return Object.fromEntries(entries.filter(([, value]) => value !== undefined && value !== '').map(([key, value]) => [key, String(value)]))
 }
 
 /** Quantos filtros estão ativos (selo no botão "Filtros"); ordenação não conta */
 export const activeFilterCount = (filters: Filters) =>
-    [filters.type, filters.city, filters.neighborhood, filters.minPrice, filters.maxPrice, filters.bedrooms, filters.parking].filter(value => value !== undefined).length
+    [filters.type, filters.city, filters.neighborhood, filters.minPrice, filters.maxPrice, filters.bedrooms, filters.parking, filters.minArea, filters.suites, filters.deliveryUntil, filters.feature].filter(value => value !== undefined).length

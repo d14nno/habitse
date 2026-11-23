@@ -48,11 +48,18 @@ export interface ListParams extends Filters {
  */
 const staticCatalog = () => (import.meta.env.VITE_LISTINGS_SOURCE === 'api' ? Promise.resolve(null) : loadCatalog())
 
+/** Filtros que só o catálogo estático entende; a API não os recebe */
+const CATALOG_ONLY = ['minArea', 'suites', 'deliveryUntil', 'feature'] as const
+
 export const listingsApi = {
     async list(params: ListParams, signal?: AbortSignal): Promise<Paginated<ListingCard>> {
         const catalog = await staticCatalog()
+        if (catalog) return listCatalog(catalog, params)
 
-        return catalog ? listCatalog(catalog, params) : request<Paginated<ListingCard>>('/listings', params as Query, signal)
+        const apiParams: ListParams = { ...params }
+        for (const key of CATALOG_ONLY) delete apiParams[key]
+
+        return request<Paginated<ListingCard>>('/listings', apiParams as Query, signal)
     },
     async get(slug: string, signal?: AbortSignal): Promise<ListingDetail> {
         const catalog = await staticCatalog()

@@ -30,7 +30,11 @@ const priceOptions = computed(() => {
     return steps.length ? steps : PRICE_STEPS
 })
 
+const AREA_STEPS = [50, 80, 100, 150, 200]
 const neighborhoods = computed(() => (props.facets?.neighborhoods ?? []).filter(item => !draft.value.city || item.city === draft.value.city))
+/** Entrega e diferenciais só aparecem quando existem no cadastro desta lista */
+const deliveryYears = computed(() => props.facets?.deliveryYears ?? [])
+const features = computed(() => props.facets?.features ?? [])
 
 function pick<K extends keyof Filters>(key: K, value: Filters[K]) {
     draft.value = { ...draft.value, [key]: draft.value[key] === value ? undefined : value }
@@ -100,6 +104,20 @@ const apply = () => emit('apply', { ...draft.value })
                         </fieldset>
 
                         <fieldset>
+                            <legend>Área privativa mínima</legend>
+                            <div class="wrap">
+                                <button v-for="n in AREA_STEPS" :key="n" type="button" class="chip" :class="{ on: draft.minArea === n }" @click="pick('minArea', n)">{{ n }} m²</button>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>Suítes</legend>
+                            <div class="wrap">
+                                <button v-for="n in [1, 2, 3, 4]" :key="n" type="button" class="chip" :class="{ on: draft.suites === n }" @click="pick('suites', n)">{{ n }}+</button>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
                             <legend>Quartos</legend>
                             <div class="wrap">
                                 <button v-for="n in [1, 2, 3, 4]" :key="n" type="button" class="chip" :class="{ on: draft.bedrooms === n }" @click="pick('bedrooms', n)">{{ n }}+</button>
@@ -110,6 +128,20 @@ const apply = () => emit('apply', { ...draft.value })
                             <legend>Vagas de garagem</legend>
                             <div class="wrap">
                                 <button v-for="n in [1, 2, 3]" :key="n" type="button" class="chip" :class="{ on: draft.parking === n }" @click="pick('parking', n)">{{ n }}+</button>
+                            </div>
+                        </fieldset>
+
+                        <fieldset v-if="deliveryYears.length">
+                            <legend>Entrega prevista até</legend>
+                            <div class="wrap">
+                                <button v-for="year in deliveryYears" :key="year" type="button" class="chip" :class="{ on: draft.deliveryUntil === year }" @click="pick('deliveryUntil', year)">{{ year }}</button>
+                            </div>
+                        </fieldset>
+
+                        <fieldset v-if="features.length">
+                            <legend>Características</legend>
+                            <div class="wrap">
+                                <button v-for="item in features" :key="item" type="button" class="chip" :class="{ on: draft.feature === item }" @click="pick('feature', item)">{{ item }}</button>
                             </div>
                         </fieldset>
                     </div>
@@ -125,23 +157,23 @@ const apply = () => emit('apply', { ...draft.value })
 </template>
 
 <style scoped>
-.overlay { position: fixed; inset: 0; z-index: 60; background: rgba(8, 20, 18, .5); display: flex; align-items: flex-end; justify-content: center; }
-.sheet { width: 100%; max-width: 560px; max-height: 92dvh; display: flex; flex-direction: column; background: #fff; border-radius: 22px 22px 0 0; outline: none; }
+.overlay { position: fixed; inset: 0; z-index: 60; background: rgba(38, 43, 41, .5); display: flex; align-items: flex-end; justify-content: center; }
+.sheet { width: 100%; max-width: 560px; max-height: 92dvh; display: flex; flex-direction: column; background: var(--bg); border-radius: var(--radius) var(--radius) 0 0; outline: none; }
 header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px 20px; }
-h2 { font-size: 1.15rem; }
+h2 { font-size: 1.5rem; }
 .x { width: 44px; height: 44px; display: grid; place-items: center; border: 0; background: transparent; border-radius: 50%; }
-.content { overflow-y: auto; padding: 0 20px 12px; display: grid; gap: 18px; overscroll-behavior: contain; }
+.content { overflow-y: auto; padding: 0 20px 12px; display: grid; gap: 22px; overscroll-behavior: contain; }
 fieldset { border: 0; padding: 0; margin: 0; }
-legend { padding: 0; margin-bottom: 8px; font-weight: 700; }
+legend { padding: 0; margin-bottom: 10px; font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; color: var(--ink-3); }
 .wrap { display: flex; flex-wrap: wrap; gap: 8px; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 label { display: grid; gap: 4px; font-size: .82rem; font-weight: 600; color: var(--ink-3); }
-select { min-height: 46px; padding: 0 10px; border: 1px solid var(--line); border-radius: 12px; background: #fff; font-size: 1rem; color: var(--ink); }
+select { min-height: 48px; padding: 0 10px; border: 1px solid #cfc9bb; border-radius: var(--radius-sm); background: var(--card); font-size: 1rem; color: var(--ink); }
 footer { display: flex; gap: 10px; padding: 12px 20px calc(14px + var(--safe-bottom)); border-top: 1px solid var(--line); }
 .grow { flex: 1; }
 .sheet-enter-active, .sheet-leave-active { transition: opacity .2s ease; }
 .sheet-enter-active .sheet, .sheet-leave-active .sheet { transition: transform .25s cubic-bezier(.2, .8, .2, 1); }
 .sheet-enter-from, .sheet-leave-to { opacity: 0; }
 .sheet-enter-from .sheet, .sheet-leave-to .sheet { transform: translateY(100%); }
-@media (min-width: 700px) { .overlay { align-items: center; } .sheet { border-radius: 22px; } }
+@media (min-width: 700px) { .overlay { align-items: center; } .sheet { border-radius: var(--radius); } }
 </style>

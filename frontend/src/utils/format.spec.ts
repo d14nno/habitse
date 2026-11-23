@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { count, formatArea, formatDelivery, formatPrice, formatPriceShort, summary } from './format'
+import { count, formatArea, formatDelivery, formatPrice, formatPriceShort, priceLead, summary } from './format'
 
 describe('formatação', () => {
     it('preço em reais, ou "Sob consulta" sem valor', () => {
@@ -24,7 +24,16 @@ describe('formatação', () => {
         expect(formatArea(null)).toBeNull()
         expect(count(1, 'quarto')).toBe('1 quarto')
         expect(count(3, 'vaga')).toBe('3 vagas')
-        expect(summary({ bedrooms: 3, parking: 1, area: 98, type: 'apartamento' })).toBe('3 quartos · 1 vaga · 98 m²')
-        expect(summary({ bedrooms: 0, parking: 0, area: null, type: 'terreno' })).toBe('')
+        expect(summary({ bedrooms: 3, parking: 1, area: 98, type: 'apartamento' })).toBe('98 m² · 3 quartos · 1 vaga')
+        expect(summary({ bedrooms: 3, suites: 3, parking: 2, area: 98, type: 'apartamento' })).toBe('98 m² · 3 suítes · 2 vagas')
+        expect(summary({ bedrooms: 4, parking: 4, area: 337.5, type: 'casa' })).toBe('Casa · 337,5 m² · 4 quartos · 4 vagas')
+        expect(summary({ bedrooms: 0, parking: 0, area: null, type: 'terreno' })).toBe('Terreno')
+    })
+
+    it('a partir de só em empreendimentos com valor', () => {
+        expect(priceLead('under_construction', 1000)).toBe('a partir de')
+        expect(priceLead('ready', 1000)).toBe('a partir de')
+        expect(priceLead('used', 1000)).toBeNull()
+        expect(priceLead('off_plan', null)).toBeNull()
     })
 })

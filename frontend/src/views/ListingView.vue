@@ -7,7 +7,7 @@ import { SITE, whatsappLink } from '@/config'
 import { setSeo } from '@/composables/useSeo'
 import { useFavorites } from '@/composables/useFavorites'
 import { categoryByKey, typeLabel } from '@/utils/categories'
-import { count, formatArea, formatDelivery, formatPrice } from '@/utils/format'
+import { count, formatArea, formatDelivery, formatPrice, priceLead } from '@/utils/format'
 import type { ListingDetail } from '@/types/Listing'
 import AppIcon from '@/components/AppIcon.vue'
 import ListingCard from '@/components/ListingCard.vue'
@@ -29,6 +29,23 @@ const category = computed(() => (listing.value ? categoryByKey(listing.value.cat
 const delivery = computed(() => formatDelivery(listing.value?.deliveryDate))
 const url = computed(() => `${SITE.url}/imovel/${listing.value?.slug ?? ''}`)
 const message = computed(() => `Olá! Tenho interesse no imóvel "${listing.value?.title}" (${formatPrice(listing.value?.price)}). ${url.value}`)
+const lead = computed(() => (listing.value ? priceLead(listing.value.category, listing.value.price) : null))
+const statusText = computed(() => {
+    const item = listing.value
+    if (!item) return ''
+    const base = categoryByKey(item.category).status
+    return item.permuta ? `${base} · Permuta Bambuí` : base
+})
+/** Transparência sobre a situação do imóvel (sem prometer o que não está documentado) */
+const statusNote = computed(() => {
+    switch (listing.value?.category) {
+        case 'used': return 'Imóvel usado. Ocupação, documentação e disponibilidade são confirmadas no atendimento, antes de qualquer proposta.'
+        case 'under_construction': return 'Imóvel em construção. Imagens ilustrativas; a previsão de entrega pode ser ajustada pela construtora.'
+        case 'off_plan': return 'Imóvel na planta. Imagens ilustrativas; valores e condições seguem a tabela vigente e podem mudar.'
+        case 'ready': return 'Empreendimento concluído. Disponibilidade da unidade confirmada no atendimento.'
+        default: return ''
+    }
+})
 const longText = computed(() => (listing.value?.description.length ?? 0) > 360)
 
 /** Características principais em "blocos" fáceis de ler no celular */
@@ -124,9 +141,8 @@ watch(() => route.params.slug, slug => { if (slug && route.name === 'listing') l
         </div>
 
         <div class="container body">
-            <span class="badge" :class="listing.category">{{ listing.categoryLabel }}</span>
-            <span v-if="listing.permuta" class="badge permuta">Permuta Bambuí</span>
-            <p class="price"><small v-if="listing.category !== 'used' && listing.price !== null">A partir de</small>{{ formatPrice(listing.price) }}</p>
+            <p class="tag">{{ statusText }}</p>
+            <p class="price"><small v-if="lead">{{ lead }}</small>{{ formatPrice(listing.price) }}</p>
             <p v-if="listing.priceNote" class="price-note">{{ listing.priceNote }}</p>
             <h1>{{ listing.title }}</h1>
             <p class="where"><AppIcon name="pin" :size="17" /> {{ listing.address || `${listing.neighborhood}, ${listing.city} - ${listing.state}` }}</p>
@@ -136,12 +152,14 @@ watch(() => route.params.slug, slug => { if (slug && route.name === 'listing') l
             </ul>
 
             <section v-if="listing.category !== 'used'" class="block build">
-                <h2>{{ listing.category === 'under_construction' ? 'Andamento da obra' : 'Lançamento' }}</h2>
+                <h2>{{ listing.category === 'under_construction' ? 'Andamento da obra' : listing.category === 'ready' ? 'Empreendimento' : 'Lançamento' }}</h2>
                 <ProgressBar v-if="listing.constructionProgress !== null" :value="listing.constructionProgress" />
                 <p v-if="delivery">Previsão de entrega: <b>{{ delivery }}</b></p>
                 <p v-if="listing.developer">Construtora/Incorporadora: <b>{{ listing.developer }}</b></p>
                 <p v-if="listing.incorporation">Registro de incorporação: <b>{{ listing.incorporation }}</b></p>
             </section>
+
+            <p v-if="statusNote" class="status-note">{{ statusNote }}</p>
 
             <section class="block">
                 <h2>Sobre o imóvel</h2>
@@ -162,7 +180,7 @@ watch(() => route.params.slug, slug => { if (slug && route.name === 'listing') l
 
         <!-- Barra de contato fixa: o botão principal sempre ao alcance do polegar -->
         <div class="cta">
-            <div class="cta-price"><small>{{ listing.category === 'used' ? 'Valor' : 'A partir de' }}</small><b>{{ formatPrice(listing.price) }}</b></div>
+            <div class="cta-price"><small>{{ lead ?? 'Valor' }}</small><b>{{ formatPrice(listing.price) }}</b></div>
             <a class="btn wa grow" :href="whatsappLink(message)" target="_blank" rel="noopener"><AppIcon name="whatsapp" :size="22" /> Falar no WhatsApp</a>
         </div>
     </article>
@@ -174,27 +192,27 @@ watch(() => route.params.slug, slug => { if (slug && route.name === 'listing') l
 .state { display: grid; justify-items: start; gap: 12px; padding-top: 40px; }
 .state h1 { font-size: 1.4rem; }
 .media { position: relative; }
-.round { position: absolute; top: 12px; z-index: 5; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .94); color: var(--ink); box-shadow: 0 2px 10px rgba(0, 0, 0, .2); }
-.round.on { color: #e11d48; }
+.round { position: absolute; top: 12px; z-index: 5; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(245, 242, 235, .94); color: var(--brand); }
+.round.on { color: #9f2a1d; }
 .round.on :deep(path) { fill: currentColor; }
 .back { left: 12px; transform: scaleX(-1); }
 .actions { position: absolute; top: 0; right: 0; z-index: 5; display: flex; gap: 8px; padding-right: 12px; }
 .actions .round { position: static; margin-top: 12px; }
-.toast { position: absolute; left: 50%; bottom: 44px; z-index: 6; transform: translateX(-50%); padding: 8px 14px; border-radius: 99px; background: rgba(16, 32, 29, .92); color: #fff; font-size: .88rem; font-weight: 600; }
+.toast { position: absolute; left: 50%; bottom: 44px; z-index: 6; transform: translateX(-50%); padding: 8px 14px; border-radius: 99px; background: rgba(38, 43, 41, .94); color: var(--bg); font-size: .88rem; font-weight: 600; }
 .body { padding-top: 16px; padding-bottom: calc(var(--nav-h) + 70px); }
-.price { margin-top: 8px; font-size: 1.9rem; font-weight: 800; letter-spacing: -.03em; }
-.price small { display: block; font-size: .85rem; font-weight: 600; letter-spacing: 0; color: var(--ink-3); }
+.price { margin-top: 10px; font-family: var(--serif); font-size: 2.3rem; font-weight: 500; letter-spacing: -.02em; }
+.price small { display: block; font-family: var(--font); font-size: .85rem; font-weight: 500; letter-spacing: 0; color: var(--ink-3); }
 .price-note { margin-top: 2px; font-size: .82rem; color: var(--ink-3); }
-.badge.permuta { margin-left: 6px; background: #10201d; color: #fff; }
-h1 { margin-top: 2px; font-size: 1.2rem; line-height: 1.3; }
+h1 { margin-top: 6px; font-size: 1.7rem; line-height: 1.2; }
+.status-note { margin-top: 20px; padding: 14px 16px; border-left: 2px solid var(--sand); background: var(--card); font-size: .92rem; line-height: 1.55; color: var(--ink-2); }
 .where { margin-top: 8px; display: flex; align-items: center; gap: 6px; color: var(--ink-2); }
 .facts { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 10px; }
-.facts li { display: grid; justify-items: center; gap: 3px; padding: 12px 6px; border-radius: var(--radius-sm); background: #fff; text-align: center; color: var(--brand); }
+.facts li { display: grid; justify-items: center; gap: 3px; padding: 14px 6px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--card); text-align: center; color: var(--brand); }
 .facts b { color: var(--ink); font-size: .98rem; }
 .facts small { color: var(--ink-3); font-size: .76rem; }
 .block { margin-top: 24px; }
-.block h2 { margin-bottom: 8px; font-size: 1.1rem; }
-.build { padding: 16px; border-radius: var(--radius); background: #fff; }
+.block h2 { margin-bottom: 10px; font-size: 1.4rem; }
+.build { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
 .build p { margin-top: 8px; color: var(--ink-2); }
 .desc { white-space: pre-line; color: var(--ink-2); }
 .desc.clamp { display: -webkit-box; -webkit-line-clamp: 5; line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
@@ -202,15 +220,15 @@ h1 { margin-top: 2px; font-size: 1.2rem; line-height: 1.3; }
 .features { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
 .features li { display: flex; align-items: center; gap: 7px; color: var(--ink-2); font-size: .94rem; }
 .features svg { color: var(--brand); flex: none; }
-.cta { position: fixed; left: 0; right: 0; bottom: calc(var(--nav-h) + var(--safe-bottom)); z-index: 45; display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: rgba(255, 255, 255, .97); border-top: 1px solid var(--line); box-shadow: 0 -6px 20px rgba(16, 32, 29, .08); }
+.cta { position: fixed; left: 0; right: 0; bottom: calc(var(--nav-h) + var(--safe-bottom)); z-index: 45; display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: rgba(245, 242, 235, .98); border-top: 1px solid var(--line); }
 .cta-price { display: grid; line-height: 1.15; }
 .cta-price small { color: var(--ink-3); font-size: .72rem; }
-.cta-price b { font-size: 1.05rem; }
+.cta-price b { font-family: var(--serif); font-size: 1.25rem; font-weight: 500; }
 .grow { flex: 1; }
 @media (min-width: 900px) {
     .detail { max-width: 1180px; margin: 0 auto; padding: 20px 24px 0; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 0 28px; align-items: start; }
     .media { grid-column: 1; grid-row: 1 / span 2; position: sticky; top: calc(var(--header-h) + 20px); }
-    .cta { position: static; grid-column: 2; grid-row: 1; margin-bottom: 8px; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .cta { position: static; grid-column: 2; grid-row: 1; margin-bottom: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
     .body { grid-column: 2; grid-row: 2; padding: 0 0 40px; }
     .back, .actions { display: none; }
 }

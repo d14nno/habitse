@@ -20,8 +20,8 @@ const FEATURE_BY_FILE: [RegExp, string][] = [
 const CATEGORY_BY_STATUS: Record<BambuiStatus, ListingCategory> = {
     upcoming: ListingCategory.OFF_PLAN,
     under_construction: ListingCategory.UNDER_CONSTRUCTION,
-    // Não existe vitrine para "novo pronto para morar": entra na de prontos (usados), mas como rascunho até alguém decidir
-    ready: ListingCategory.USED
+    // Empreendimento novo já concluído: vitrine "Prontos para morar" (entra como rascunho até ser publicado nos ajustes)
+    ready: ListingCategory.READY
 }
 
 export interface ImportOptions {

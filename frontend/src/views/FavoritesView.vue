@@ -52,14 +52,14 @@ onMounted(() => {
             <AppIcon name="heart" :size="36" />
             <h2>Nenhum favorito ainda</h2>
             <p>Explore os imóveis e salve os que você gostar.</p>
-            <RouterLink to="/" class="btn primary">Explorar imóveis</RouterLink>
+            <RouterLink to="/imoveis" class="btn primary">Explorar imóveis</RouterLink>
         </div>
     </div>
 </template>
 
 <style scoped>
 .head { padding: 22px 0 16px; }
-h1 { font-size: 1.5rem; letter-spacing: -.02em; }
+h1 { font-size: 2rem; }
 .head p { margin-top: 4px; font-size: .94rem; }
 .empty { display: grid; justify-items: center; gap: 8px; padding: 44px 16px; text-align: center; color: var(--ink-2); }
 .empty h2 { color: var(--ink); }

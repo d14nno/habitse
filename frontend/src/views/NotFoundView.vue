@@ -16,6 +16,6 @@ onMounted(() => setSeo({ title: 'Página não encontrada' }))
 
 <style scoped>
 .nf { display: grid; justify-items: start; gap: 12px; padding-top: 56px; }
-h1 { font-size: 1.6rem; }
+h1 { font-size: 2rem; }
 p { color: var(--ink-2); }
 </style>

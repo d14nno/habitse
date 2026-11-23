@@ -2,8 +2,8 @@
   "areiao-1141": { "featured": true },
   "praca-232": { "featured": true },
   "marista-262": { "featured": true },
-  "b-great-bosque-dos-buritis": {},
-  "bgreat-nova-suica": {},
-  "ares-marista": {},
-  "vox-home": {}
+  "b-great-bosque-dos-buritis": { "status": "published" },
+  "bgreat-nova-suica": { "status": "published" },
+  "ares-marista": { "status": "published" },
+  "vox-home": { "status": "published" }
 }

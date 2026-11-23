@@ -16,12 +16,13 @@ describe('filtros na URL', () => {
     })
 
     it('vai e volta sem perder nada', () => {
-        const filters = { type: 'casa', city: 'Goiânia', neighborhood: 'Setor Bueno', minPrice: 200000, maxPrice: 900000, bedrooms: 3, parking: 2, q: 'jardim', sort: 'area_desc' as const }
+        const filters = { type: 'casa', city: 'Goiânia', neighborhood: 'Setor Bueno', minPrice: 200000, maxPrice: 900000, bedrooms: 3, parking: 2, minArea: 90, suites: 2, deliveryUntil: 2028, feature: 'Piscina', q: 'jardim', sort: 'area_desc' as const }
         expect(filtersFromQuery(filtersToQuery(filters))).toEqual(filters)
     })
 
     it('conta só filtros (busca e ordem não entram no selo)', () => {
         expect(activeFilterCount({ bedrooms: 2, city: 'Goiânia', q: 'x', sort: 'price_asc' })).toBe(2)
+        expect(activeFilterCount({ minArea: 90, suites: 2, deliveryUntil: 2028, feature: 'Piscina' })).toBe(4)
         expect(activeFilterCount({})).toBe(0)
     })
 })

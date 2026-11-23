@@ -58,7 +58,7 @@ describe('Vitrine de imóveis', () => {
 
     it('o cartão leva a capa e a categoria; andamento só existe em obra', async () => {
         const cards = (await list.execute({}, 'recent', page)).data
-        expect(cards.find(item => item.slug === 'a')).toMatchObject({ cover: '/a.svg', categoryLabel: 'Imóveis usados', categorySlug: 'usados', constructionProgress: null, deliveryDate: null })
+        expect(cards.find(item => item.slug === 'a')).toMatchObject({ cover: '/a.svg', categoryLabel: 'Oportunidades de mercado', categorySlug: 'oportunidades', constructionProgress: null, deliveryDate: null })
         expect(cards.find(item => item.slug === 'c')).toMatchObject({ categorySlug: 'em-construcao', constructionProgress: 40, price: null })
     })
 

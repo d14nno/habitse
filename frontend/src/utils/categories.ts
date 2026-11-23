@@ -5,17 +5,20 @@ export interface CategoryInfo {
     slug: string
     label: string
     short: string
-    headline: string
     description: string
-    /** Cor de identificação (cartões, selos, abas) */
-    color: string
+    /** Texto da situação do imóvel nos cartões */
+    status: string
 }
 
+/** Ordem das vitrines no site. Todas usam a mesma identidade visual: a categoria se distingue pelo texto, não pela cor. */
 export const CATEGORIES: CategoryInfo[] = [
-    { key: 'used', slug: 'usados', label: 'Imóveis usados', short: 'Usados', headline: 'Pronto para morar', description: 'Imóveis prontos, com escritura e documentação em dia. Mude-se rápido.', color: '#0b6b5d' },
-    { key: 'off_plan', slug: 'na-planta', label: 'Na planta', short: 'Na planta', headline: 'Lançamentos', description: 'Compre na fase de lançamento, com entrada facilitada e parcelas até a entrega.', color: '#4f46e5' },
-    { key: 'under_construction', slug: 'em-construcao', label: 'Em construção', short: 'Em construção', headline: 'Obra em andamento', description: 'Acompanhe o avanço da obra e escolha com previsão de entrega definida.', color: '#c2610c' }
+    { key: 'ready', slug: 'prontos-para-morar', label: 'Prontos para morar', short: 'Prontos para morar', description: 'Empreendimentos já concluídos, para mudança imediata, com a situação de cada imóvel informada com clareza.', status: 'Pronto para morar' },
+    { key: 'off_plan', slug: 'na-planta', label: 'Lançamentos', short: 'Lançamentos', description: 'Empreendimentos na planta, com projeto, previsão de entrega e valores da tabela vigente.', status: 'Lançamento' },
+    { key: 'under_construction', slug: 'em-construcao', label: 'Em construção', short: 'Em construção', description: 'Obras em andamento, com o estágio da construção e a previsão de entrega sempre à vista.', status: 'Em construção' },
+    { key: 'used', slug: 'oportunidades', label: 'Oportunidades de mercado', short: 'Oportunidades', description: 'Imóveis de revenda e de permuta, usados, com a situação de cada um informada.', status: 'Imóvel usado' }
 ]
+
+export const ALL_SLUG = 'imoveis'
 
 export const categoryBySlug = (slug: string) => CATEGORIES.find(category => category.slug === slug)
 export const categoryByKey = (key: CategoryKey) => CATEGORIES.find(category => category.key === key)!

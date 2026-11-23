@@ -48,9 +48,9 @@ export class Listing {
         return new Listing({
             ...props,
             id: props.id ?? 0,
-            // Andamento só faz sentido em obra; data de entrega só fora de imóveis usados
+            // Andamento só faz sentido em obra; data de entrega só em imóveis que ainda serão entregues
             constructionProgress: props.category === ListingCategory.UNDER_CONSTRUCTION ? props.constructionProgress ?? 0 : null,
-            deliveryDate: props.category === ListingCategory.USED ? null : props.deliveryDate,
+            deliveryDate: props.category === ListingCategory.USED || props.category === ListingCategory.READY ? null : props.deliveryDate,
             createdAt: props.createdAt ?? now,
             updatedAt: props.updatedAt ?? now
         })

@@ -90,6 +90,34 @@ describe('catálogo estático: mesmas regras da API', () => {
     })
 })
 
+describe('filtros de área, suítes, entrega e diferenciais (só o que está cadastrado)', () => {
+    const rich: Catalog = {
+        version: 1,
+        items: [
+            item(1, { area: 151, suites: 3, deliveryDate: '2028-03', features: ['Piscina', 'Academia'] }),
+            item(2, { area: 98, suites: 3, deliveryDate: '2029-06', features: ['Piscina'] }),
+            item(3, { area: 52, suites: 0, bedrooms: 2, deliveryDate: null, category: 'used', categoryLabel: 'Oportunidades de mercado', categorySlug: 'oportunidades', features: ['Permuta Bambuí', 'Vista para a praça'] })
+        ]
+    }
+
+    it('filtra por área mínima, suítes, entrega até o ano e diferencial', () => {
+        expect(listCatalog(rich, { minArea: 100 }).data.map(card => card.slug)).toEqual(['imovel-1'])
+        expect(listCatalog(rich, { suites: 3 }).pagination.total).toBe(2)
+        expect(listCatalog(rich, { deliveryUntil: 2028 }).data.map(card => card.slug)).toEqual(['imovel-1'])
+        expect(listCatalog(rich, { deliveryUntil: 2029 }).pagination.total).toBe(2)
+        expect(listCatalog(rich, { feature: 'Piscina' }).pagination.total).toBe(2)
+        expect(listCatalog(rich, { feature: 'Academia', suites: 3 }).data.map(card => card.slug)).toEqual(['imovel-1'])
+    })
+
+    it('opções de filtro vêm do cadastro: diferenciais (sem o selo de permuta) e anos de entrega', () => {
+        const facets = catalogFacets(rich)
+
+        expect(facets.features).toEqual(['Piscina', 'Academia', 'Vista para a praça'])
+        expect(facets.deliveryYears).toEqual([2028, 2029])
+        expect(catalogFacets(rich, 'used').features).toEqual(['Vista para a praça'])
+    })
+})
+
 describe('loadCatalog', () => {
     afterEach(() => {
         vi.unstubAllGlobals()

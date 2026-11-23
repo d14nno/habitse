@@ -87,6 +87,23 @@ export function validateAdjustments(raw: unknown): { adjustments: Adjustments, e
     return { adjustments: errors.length ? {} : (raw as Adjustments), errors }
 }
 
+const fold = (text: string) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim()
+
+/**
+ * O mesmo bairro chega escrito de jeitos diferentes (site da Bambuí sem acento, lista de permutas com acento).
+ * Fica a grafia com acento, para a lista de bairros e os filtros não duplicarem.
+ */
+export function canonicalPlaces(items: CatalogItem[]): CatalogItem[] {
+    const best = new Map<string, string>()
+    for (const value of items.flatMap(item => [item.neighborhood, item.city])) {
+        const key = fold(value)
+        const current = best.get(key)
+        if (!current || (/[^ -~]/.test(value) && !/[^ -~]/.test(current))) best.set(key, value)
+    }
+
+    return items.map(item => ({ ...item, neighborhood: best.get(fold(item.neighborhood)) ?? item.neighborhood, city: best.get(fold(item.city)) ?? item.city }))
+}
+
 /** Aplica o ajuste manual sobre o anúncio importado (o que não foi ajustado fica como veio do site) */
 export function applyAdjustment(listing: Listing, adjustment: Adjustment | undefined): { listing: Listing, incorporation: string | null, priceNote: string | null } {
     const { incorporation = null, priceNote = null, ...fields } = adjustment ?? {}
@@ -117,7 +134,7 @@ export function buildCatalog(imported: Listing[], adjustments: Adjustments, prev
         items.push(sameContent ? { ...item, updatedAt: old.updatedAt } : item)
     })
 
-    return { version: 1, items }
+    return { version: 1, items: canonicalPlaces(items) }
 }
 
 /** Preço, entrega e registro vindos da tabela do mês; o que está em `data/bambui-ajustes.json` (à mão) sempre vale mais */

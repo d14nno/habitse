@@ -25,17 +25,27 @@ describe('ListingCard', () => {
         expect(text).toContain('R$')
         expect(text).toContain('559.000')
         expect(text).toContain('Setor Bueno, Goiânia')
-        expect(text).toContain('3 quartos · 2 vagas · 84 m²')
+        expect(text).toContain('84 m² · 1 suíte · 2 vagas')
+        expect(text).toContain('Em construção')
+        expect(text).toContain('a partir de')
         expect(text).toContain('Entrega ago/2027')
         expect(text).toContain('Obra 62% concluída')
         expect(text).toContain('5 fotos')
     })
 
     it('imóvel usado não mostra entrega nem andamento; sem valor vira "Sob consulta"', () => {
-        const text = mountCard({ ...base, category: 'used', categoryLabel: 'Imóveis usados', deliveryDate: null, developer: null, constructionProgress: null, price: null }).text()
+        const text = mountCard({ ...base, category: 'used', categoryLabel: 'Oportunidades de mercado', deliveryDate: null, developer: null, constructionProgress: null, price: null }).text()
         expect(text).toContain('Sob consulta')
+        expect(text).toContain('Imóvel usado')
+        expect(text).not.toContain('a partir de')
         expect(text).not.toContain('Entrega')
         expect(text).not.toContain('Obra')
+    })
+
+    it('permuta aparece como imóvel usado de permuta, com o valor direto (sem "a partir de")', () => {
+        const text = mountCard({ ...base, category: 'used', permuta: true, deliveryDate: null, developer: null, constructionProgress: null }).text()
+        expect(text).toContain('Imóvel usado · Permuta Bambuí')
+        expect(text).not.toContain('a partir de')
     })
 
     it('o coração salva e remove dos favoritos (e guarda no aparelho)', async () => {

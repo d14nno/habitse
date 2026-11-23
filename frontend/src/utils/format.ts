@@ -1,3 +1,5 @@
+import { typeLabel } from '@/utils/categories'
+
 const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
 
 /** R$ 685.000 — ou "Sob consulta" quando o anúncio não tem valor */
@@ -23,12 +25,17 @@ export const formatArea = (area: number | null | undefined) => (area ? `${area.t
 /** "3 quartos", "1 vaga"... (singular/plural) */
 export const count = (value: number, singular: string, plural = `${singular}s`) => `${value} ${value === 1 ? singular : plural}`
 
-/** Linha curta de características para o cartão: "3 quartos · 2 vagas · 98 m²" */
-export function summary(item: { bedrooms: number, parking: number, area: number | null, type: string }): string {
+/** "a partir de" nos empreendimentos (o valor é o da menor unidade da tabela); imóvel de revenda mostra o valor direto */
+export const priceLead = (category: string, price: number | null | undefined) => (price === null || price === undefined || category === 'used' ? null : 'a partir de')
+
+/** Linha curta de características para o cartão: "98 m² · 3 suítes · 2 vagas". Só o que está cadastrado. */
+export function summary(item: { bedrooms: number, suites?: number, parking: number, area: number | null, type: string }): string {
     const parts: string[] = []
-    if (item.bedrooms) parts.push(count(item.bedrooms, 'quarto'))
-    if (item.parking) parts.push(count(item.parking, 'vaga'))
+    if (item.type !== 'apartamento') parts.push(typeLabel(item.type))
     const area = formatArea(item.area)
     if (area) parts.push(area)
+    if (item.suites) parts.push(count(item.suites, 'suíte'))
+    else if (item.bedrooms) parts.push(count(item.bedrooms, 'quarto'))
+    if (item.parking) parts.push(count(item.parking, 'vaga'))
     return parts.join(' · ')
 }

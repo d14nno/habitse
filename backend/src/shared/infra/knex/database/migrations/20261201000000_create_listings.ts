@@ -1,6 +1,6 @@
 import type { Knex } from 'knex'
 
-/** Vitrine de imóveis: um anúncio por linha, em três categorias (usados, na planta, em construção). */
+/** Vitrine de imóveis: um anúncio por linha, em categorias (oportunidades de mercado, prontos, lançamentos, em construção). */
 export async function up(knex: Knex): Promise<void> {
     await knex.raw('CREATE SCHEMA IF NOT EXISTS listings')
 

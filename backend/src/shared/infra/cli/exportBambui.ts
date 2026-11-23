@@ -93,7 +93,7 @@ async function main() {
     const sitemap = buildSitemap(catalog, siteUrl)
 
     for (const item of catalog.items) {
-        const pending = item.permuta ? [] : [item.price === null ? 'preço' : '', item.incorporation === null ? 'registro de incorporação' : '', item.deliveryDate === null && item.category !== 'used' ? 'previsão de entrega' : ''].filter(Boolean)
+        const pending = item.permuta ? [] : [item.price === null ? 'preço' : '', item.incorporation === null ? 'registro de incorporação' : '', item.deliveryDate === null && item.category !== 'used' && item.category !== 'ready' ? 'previsão de entrega' : ''].filter(Boolean)
         console.log(`✅ ${item.title} [${item.permuta ? 'Permuta' : item.categoryLabel}]${pending.length ? ` — falta: ${pending.join(', ')}` : ''}`)
     }
     const hidden = sink.listings.length - catalog.items.length

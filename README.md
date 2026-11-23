@@ -27,6 +27,10 @@ cd frontend && npm install && npm run dev      # http://localhost:5180
 - **Favoritos** salvos no aparelho (sem cadastro), barra de navegação inferior, botão flutuante de WhatsApp, SEO (título, descrição, JSON-LD, sitemap) e instalável (manifest).
 - Primeiro carregamento ≈ 45 KB de JavaScript comprimido.
 
+## Identidade e vitrines
+
+Visual sóbrio (verde #173D36, marfim #F5F2EB, grafite #262B29, areia #C4B69E), títulos em Newsreader e texto em Public Sans (arquivos em `frontend/public/fonts`). Vitrines: **Prontos para morar** (`/prontos-para-morar`), **Lançamentos** (`/na-planta`), **Em construção** (`/em-construcao`) e **Oportunidades de mercado** (`/oportunidades`, antiga `/usados`, que redireciona; abriga as permutas). `/imoveis` lista tudo. Rode `npm run migrate:latest` no backend para a categoria `ready` (modo API).
+
 ## Empreendimentos da Bambuí
 
 A Bambuí é a construtora dona dos empreendimentos anunciados. `npm run import:bambui` (banco) e `npm run export:bambui` (catálogo

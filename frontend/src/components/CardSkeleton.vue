@@ -10,7 +10,7 @@
 </template>
 
 <style scoped>
-.sk { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.sk { overflow: hidden; }
 .img { aspect-ratio: 4 / 3; border-radius: 0; }
-.lines { display: grid; gap: 10px; padding: 16px; }
+.lines { display: grid; gap: 10px; padding: 18px 0 4px; }
 </style>

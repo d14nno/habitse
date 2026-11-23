@@ -5,6 +5,10 @@ export const SITE = {
     url: (import.meta.env.VITE_SITE_URL || 'https://habitse.com.br').replace(/\/$/, ''),
     /** WhatsApp de atendimento (somente dígitos, com 55). Pode ser trocado em VITE_WHATSAPP */
     whatsapp: import.meta.env.VITE_WHATSAPP || '5562998322361',
+    /** Telefone de atendimento como aparece no site */
+    phone: '(62) 99832-2361',
+    /** Consultor responsável pelo atendimento */
+    consultant: 'Adriano Oliveira de Freitas',
     /** Registro profissional exibido no rodapé e nos dados estruturados */
     creci: import.meta.env.VITE_CRECI || '49.743/GO',
     /** Em desenvolvimento usa o proxy do Vite (/api); em produção, a API do subdomínio */

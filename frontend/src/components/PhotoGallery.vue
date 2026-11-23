@@ -79,24 +79,24 @@ onBeforeUnmount(() => document.body.classList.remove('locked'))
 </template>
 
 <style scoped>
-.gallery { position: relative; background: #dfe8e5; }
+.gallery { position: relative; background: #d9d3c5; }
 .track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
 .track::-webkit-scrollbar { display: none; }
 .slide { flex: none; width: 100%; aspect-ratio: 4 / 3; padding: 0; border: 0; background: transparent; scroll-snap-align: center; scroll-snap-stop: always; }
 .slide img { width: 100%; height: 100%; object-fit: cover; }
 .empty { display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 3; color: var(--ink-3); }
-.counter { position: absolute; right: 12px; bottom: 12px; padding: 4px 10px; border-radius: 999px; background: rgba(16, 32, 29, .75); color: #fff; font-size: .8rem; font-weight: 700; }
+.counter { position: absolute; right: 12px; bottom: 12px; padding: 4px 10px; border-radius: 0; background: rgba(38, 43, 41, .75); color: #fff; font-size: .8rem; font-weight: 700; }
 .dots { position: absolute; left: 0; right: 0; bottom: 12px; display: flex; justify-content: center; gap: 5px; pointer-events: none; }
 .dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .6); transition: all .2s ease; }
 .dots i.on { width: 16px; border-radius: 99px; background: #fff; }
-.nav { display: none; position: absolute; top: 50%; width: 44px; height: 44px; margin-top: -22px; place-items: center; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .92); box-shadow: 0 2px 10px rgba(0, 0, 0, .2); }
+.nav { display: none; position: absolute; top: 50%; width: 44px; height: 44px; margin-top: -22px; place-items: center; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .92);  }
 .nav[disabled] { opacity: 0; pointer-events: none; }
 .prev { left: 12px; transform: scaleX(-1); }
 .next { right: 12px; }
 @media (hover: hover) and (pointer: fine) { .nav { display: grid; } }
 @media (min-width: 900px) { .slide, .empty { aspect-ratio: 16 / 10; } .gallery { border-radius: var(--radius); overflow: hidden; } }
 
-.light { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; background: #050b0a; color: #fff; }
+.light { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; background: #14181a; color: #fff; }
 .light header { display: flex; align-items: center; justify-content: space-between; padding: calc(8px + env(safe-area-inset-top, 0px)) 8px 8px 18px; font-weight: 700; }
 .light header button { width: 48px; height: 48px; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .12); color: #fff; }
 .ltrack { flex: 1; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; outline: none; overscroll-behavior: contain; }

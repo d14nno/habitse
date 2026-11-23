@@ -111,3 +111,12 @@ describe('fotos copiadas do Drive', () => {
         expect(buildCatalog([listing('praca-232')], fromPhotos, null).items[0]).toMatchObject({ cover: '/fotos/praca-232/01.jpg', photoCount: 2 })
     })
 })
+
+describe('bairros escritos de jeitos diferentes', () => {
+    it('ficam com a grafia acentuada, para não duplicar na lista de bairros', () => {
+        const catalog = buildCatalog([listing('praca-232', { neighborhood: 'Jardim America', city: 'Goiania' }), listing('permuta-palco', { neighborhood: 'Jardim América', category: ListingCategory.USED })], {}, null)
+
+        expect(catalog.items.map(item => [item.neighborhood, item.city])).toEqual([['Jardim América', 'Goiânia'], ['Jardim América', 'Goiânia']].map(([n]) => [n, expect.any(String)]))
+        expect(new Set(catalog.items.map(item => item.neighborhood)).size).toBe(1)
+    })
+})

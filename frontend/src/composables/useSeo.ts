@@ -10,7 +10,7 @@ interface Seo {
     jsonLd?: Record<string, unknown> | null
 }
 
-const DEFAULT_TITLE = `${SITE.name} · Imóveis usados, na planta e em construção`
+const DEFAULT_TITLE = `${SITE.name} · Seleção de imóveis em Goiânia e região`
 
 function meta(attr: 'name' | 'property', key: string, content: string) {
     let element = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`)

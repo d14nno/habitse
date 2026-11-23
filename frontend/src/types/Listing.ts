@@ -1,4 +1,4 @@
-export type CategoryKey = 'used' | 'off_plan' | 'under_construction'
+export type CategoryKey = 'ready' | 'used' | 'off_plan' | 'under_construction'
 
 export interface ListingCard {
     id: number
@@ -52,6 +52,9 @@ export interface Facets {
     neighborhoods: { city: string, neighborhood: string, total: number }[]
     types: { type: string, total: number }[]
     price: { min: number | null, max: number | null }
+    /** Só no catálogo estático: o que existe no cadastro e vira opção de filtro */
+    features?: string[]
+    deliveryYears?: number[]
 }
 
 export type Sort = 'recent' | 'price_asc' | 'price_desc' | 'area_desc'
@@ -65,6 +68,14 @@ export interface Filters {
     maxPrice?: number
     bedrooms?: number
     parking?: number
+    /** Área privativa mínima (m²) */
+    minArea?: number
+    /** Suítes (mínimo) */
+    suites?: number
+    /** Entrega prevista até o fim deste ano */
+    deliveryUntil?: number
+    /** Diferencial cadastrado (texto exato) */
+    feature?: string
     q?: string
     sort?: Sort
 }

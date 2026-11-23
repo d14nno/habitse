@@ -21,6 +21,10 @@ export interface CatalogQuery {
     maxPrice?: number
     bedrooms?: number
     parking?: number
+    minArea?: number
+    suites?: number
+    deliveryUntil?: number
+    feature?: string
     featured?: boolean
     q?: string
     sort?: Sort
@@ -63,6 +67,10 @@ export function listCatalog(catalog: Catalog, query: CatalogQuery): Paginated<Li
         && (query.maxPrice === undefined || (item.price !== null && item.price <= query.maxPrice))
         && (query.bedrooms === undefined || item.bedrooms >= query.bedrooms)
         && (query.parking === undefined || item.parking >= query.parking)
+        && (query.minArea === undefined || (item.area !== null && item.area >= query.minArea))
+        && (query.suites === undefined || item.suites >= query.suites)
+        && (query.deliveryUntil === undefined || (item.deliveryDate !== null && Number(item.deliveryDate.slice(0, 4)) <= query.deliveryUntil))
+        && (!query.feature || item.features.includes(query.feature))
         && (query.featured === undefined || item.featured === query.featured)
         && (!needle || fold([item.title, item.neighborhood, item.city, item.developer ?? ''].join(' ')).includes(needle)))
 
@@ -88,6 +96,9 @@ export function getFromCatalog(catalog: Catalog, slug: string): ListingDetail | 
     return { ...item, related }
 }
 
+/** Selos que não são diferenciais do imóvel e não viram opção de filtro */
+const HIDDEN_FEATURES = ['Permuta Bambuí']
+
 const count = <K extends string>(values: K[]) => {
     const totals = new Map<K, number>()
     values.forEach(value => totals.set(value, (totals.get(value) ?? 0) + 1))
@@ -105,7 +116,12 @@ export function catalogFacets(catalog: Catalog, category?: CategoryKey): Facets 
         neighborhoods.set(key, { city: item.city, neighborhood: item.neighborhood, total: (neighborhoods.get(key)?.total ?? 0) + 1 })
     })
 
+    const features = count(scoped.flatMap(item => item.features).filter(feature => !HIDDEN_FEATURES.includes(feature))).slice(0, 12).map(({ value }) => value)
+    const deliveryYears = Array.from(new Set(scoped.map(item => item.deliveryDate).filter((date): date is string => date !== null).map(date => Number(date.slice(0, 4))))).sort((a, b) => a - b)
+
     return {
+        features,
+        deliveryYears,
         categories: count(catalog.items.map(item => item.category)).map(({ value, total }) => ({ category: value, total })),
         cities: count(scoped.map(item => item.city)).map(({ value, total }) => ({ city: value, total })),
         neighborhoods: Array.from(neighborhoods.values()).sort((a, b) => a.city.localeCompare(b.city) || a.neighborhood.localeCompare(b.neighborhood)),

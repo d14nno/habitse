@@ -1,5 +1,9 @@
-/** As três vitrines do site. `slug` é o que aparece na URL do site; `label` é o texto exibido. */
+/**
+ * As vitrines do site. `slug` é o que aparece na URL do site; `label` é o texto exibido.
+ * `used` é a vitrine "Oportunidades de mercado" (imóveis de revenda e permuta); `ready` são os empreendimentos novos já prontos.
+ */
 export enum ListingCategory {
+    READY = 'ready',
     USED = 'used',
     OFF_PLAN = 'off_plan',
     UNDER_CONSTRUCTION = 'under_construction'
@@ -8,9 +12,10 @@ export enum ListingCategory {
 export const LISTING_CATEGORIES = Object.values(ListingCategory)
 
 export const CATEGORY_INFO: Record<ListingCategory, { slug: string, label: string, description: string }> = {
-    [ListingCategory.USED]: { slug: 'usados', label: 'Imóveis usados', description: 'Prontos para morar, com escritura e documentação em dia.' },
-    [ListingCategory.OFF_PLAN]: { slug: 'na-planta', label: 'Na planta', description: 'Lançamentos com as melhores condições de entrada e valorização.' },
-    [ListingCategory.UNDER_CONSTRUCTION]: { slug: 'em-construcao', label: 'Em construção', description: 'Obras em andamento, com previsão de entrega e acompanhamento do avanço.' }
+    [ListingCategory.READY]: { slug: 'prontos-para-morar', label: 'Prontos para morar', description: 'Empreendimentos já concluídos, para mudança imediata.' },
+    [ListingCategory.USED]: { slug: 'oportunidades', label: 'Oportunidades de mercado', description: 'Imóveis de revenda e de permuta, usados, com a situação de cada um informada.' },
+    [ListingCategory.OFF_PLAN]: { slug: 'na-planta', label: 'Lançamentos', description: 'Empreendimentos na planta, com projeto, previsão de entrega e valores da tabela vigente.' },
+    [ListingCategory.UNDER_CONSTRUCTION]: { slug: 'em-construcao', label: 'Em construção', description: 'Obras em andamento, com o estágio da construção e a previsão de entrega.' }
 }
 
 export const LISTING_TYPES = ['apartamento', 'casa', 'cobertura', 'casa_condominio', 'terreno', 'sala_comercial'] as const

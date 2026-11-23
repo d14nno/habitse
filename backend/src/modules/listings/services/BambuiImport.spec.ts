@@ -98,7 +98,7 @@ describe('anúncio montado a partir do empreendimento', () => {
         expect(launch.props).toMatchObject({ category: ListingCategory.OFF_PLAN, status: 'published', title: 'Areião 1141 — 2 e 3 suítes', constructionProgress: null })
 
         const ready = parseBambuiPage(PRONTO, 'https://bambui.com.br/lancamento/b-great-bosque-dos-buritis/') as never
-        expect(toListing(ready).listing.props).toMatchObject({ category: ListingCategory.USED, status: 'draft', parking: 1, bedrooms: 1, suites: 1, deliveryDate: null })
+        expect(toListing(ready).listing.props).toMatchObject({ category: ListingCategory.READY, status: 'draft', parking: 1, bedrooms: 1, suites: 1, deliveryDate: null })
         expect(toListing(ready, { publishReady: true }).listing.props.status).toBe('published')
     })
 
