@@ -1,7 +1,7 @@
 import { Listing, ListingProps } from '../entities/Listing'
 import { CATEGORY_INFO, LISTING_CATEGORIES, LISTING_STATUSES, ListingStatus } from '../enums/ListingCategory'
 import { ListingMapper } from '../mappers/ListingMapper'
-import { isFresh, priceNote as priceNoteText, TableInfos } from './PriceTableSync'
+import { isFresh, TableInfos } from './PriceTableSync'
 
 /**
  * Catálogo estático: o site pode publicar os empreendimentos sem depender da API/banco do servidor. A importação
@@ -140,13 +140,11 @@ export function buildCatalog(imported: Listing[], adjustments: Adjustments, prev
     return { version: 1, items: canonicalPlaces(items) }
 }
 
-/** Preço, entrega e registro vindos da tabela do mês; o que está em `data/bambui-ajustes.json` (à mão) sempre vale mais */
+/** Preço e entrega vindos da tabela do mês; o que está em `data/bambui-ajustes.json` (à mão) sempre vale mais */
 export function adjustmentsFromTables(tables: TableInfos, now = new Date()): Adjustments {
     return Object.fromEntries(Object.entries(tables).filter(([, info]) => isFresh(info, now)).map(([slug, info]) => [slug, {
         price: info.priceFrom,
-        priceNote: priceNoteText(info),
-        ...(info.keysDate ? { deliveryDate: info.keysDate } : {}),
-        ...(info.registry ? { incorporation: info.registry } : {})
+        ...(info.keysDate ? { deliveryDate: info.keysDate } : {})
     }]))
 }
 

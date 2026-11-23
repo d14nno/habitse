@@ -144,7 +144,6 @@ watch(() => route.params.slug, slug => { if (slug && route.name === 'listing') l
         <div class="container body">
             <p class="tag">{{ statusText }}</p>
             <p class="price"><small v-if="lead">{{ lead }}</small>{{ formatPrice(listing.price) }}</p>
-            <p v-if="listing.priceNote" class="price-note">{{ listing.priceNote }}</p>
             <h1>{{ listing.title }}</h1>
             <p class="where"><AppIcon name="pin" :size="17" /> {{ listing.address || `${listing.neighborhood}, ${listing.city} - ${listing.state}` }}</p>
 
@@ -157,7 +156,6 @@ watch(() => route.params.slug, slug => { if (slug && route.name === 'listing') l
                 <ProgressBar v-if="listing.constructionProgress !== null" :value="listing.constructionProgress" />
                 <p v-if="delivery">Previsão de entrega: <b>{{ delivery }}</b></p>
                 <p v-if="listing.developer">Construtora/Incorporadora: <b>{{ listing.developer }}</b></p>
-                <p v-if="listing.incorporation">Registro de incorporação: <b>{{ listing.incorporation }}</b></p>
             </section>
 
             <p v-if="statusNote" class="status-note">{{ statusNote }}</p>
@@ -203,7 +201,6 @@ watch(() => route.params.slug, slug => { if (slug && route.name === 'listing') l
 .body { padding-top: 16px; padding-bottom: calc(var(--nav-h) + 70px); }
 .price { margin-top: 10px; font-family: var(--serif); font-size: 2.3rem; font-weight: 500; letter-spacing: -.02em; }
 .price small { display: block; font-family: var(--font); font-size: .85rem; font-weight: 500; letter-spacing: 0; color: var(--ink-3); }
-.price-note { margin-top: 2px; font-size: .82rem; color: var(--ink-3); }
 h1 { margin-top: 6px; font-size: 1.7rem; line-height: 1.2; }
 .status-note { margin-top: 20px; padding: 14px 16px; border-left: 2px solid var(--sand); background: var(--card); font-size: .92rem; line-height: 1.55; color: var(--ink-2); }
 .where { margin-top: 8px; display: flex; align-items: center; gap: 6px; color: var(--ink-2); }

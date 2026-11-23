@@ -81,12 +81,12 @@ describe('preço e registro vindos das tabelas do Drive', () => {
     it('viram ajustes; o que foi editado à mão vale mais, e o que não foi editado vem da tabela', () => {
         const fromTables = adjustmentsFromTables({ 'praca-232': info, 'vox-home': { ...info, keysDate: null, registry: null } }, new Date(2026, 10, 25))
 
-        expect(fromTables['praca-232']).toEqual({ price: 1784700, priceNote: 'Tabela de novembro de 2026 · 40 unidades disponíveis', deliveryDate: '2028-03', incorporation: 'R-3-379.445 no Cartório X' })
+        expect(fromTables['praca-232']).toEqual({ price: 1784700, deliveryDate: '2028-03' })
         expect(fromTables['vox-home']).not.toHaveProperty('incorporation')
 
         const merged = mergeAdjustments(fromTables, { 'praca-232': { price: 1800000, featured: true, incorporation: undefined }, 'marista-262': { featured: true } })
 
-        expect(merged['praca-232']).toMatchObject({ price: 1800000, featured: true, deliveryDate: '2028-03', incorporation: 'R-3-379.445 no Cartório X' })
+        expect(merged['praca-232']).toMatchObject({ price: 1800000, featured: true, deliveryDate: '2028-03' })
         expect(merged['marista-262']).toEqual({ featured: true })
     })
 
