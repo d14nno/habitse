@@ -1,0 +1,10 @@
+{
+    "folders": [
+        { "name": "Habitse (raiz)", "path": "." },
+        { "name": "backend", "path": "backend" },
+        { "name": "frontend", "path": "frontend" }
+    ],
+    "settings": {
+        "files.exclude": { "**/node_modules": true, "**/dist": true }
+    }
+}
