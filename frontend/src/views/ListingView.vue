@@ -125,7 +125,9 @@ watch(() => route.params.slug, slug => { if (slug && route.name === 'listing') l
 
         <div class="container body">
             <span class="badge" :class="listing.category">{{ listing.categoryLabel }}</span>
-            <p class="price">{{ formatPrice(listing.price) }}</p>
+            <span v-if="listing.permuta" class="badge permuta">Permuta Bambuí</span>
+            <p class="price"><small v-if="listing.category !== 'used' && listing.price !== null">A partir de</small>{{ formatPrice(listing.price) }}</p>
+            <p v-if="listing.priceNote" class="price-note">{{ listing.priceNote }}</p>
             <h1>{{ listing.title }}</h1>
             <p class="where"><AppIcon name="pin" :size="17" /> {{ listing.address || `${listing.neighborhood}, ${listing.city} - ${listing.state}` }}</p>
 
@@ -181,6 +183,9 @@ watch(() => route.params.slug, slug => { if (slug && route.name === 'listing') l
 .toast { position: absolute; left: 50%; bottom: 44px; z-index: 6; transform: translateX(-50%); padding: 8px 14px; border-radius: 99px; background: rgba(16, 32, 29, .92); color: #fff; font-size: .88rem; font-weight: 600; }
 .body { padding-top: 16px; padding-bottom: calc(var(--nav-h) + 70px); }
 .price { margin-top: 8px; font-size: 1.9rem; font-weight: 800; letter-spacing: -.03em; }
+.price small { display: block; font-size: .85rem; font-weight: 600; letter-spacing: 0; color: var(--ink-3); }
+.price-note { margin-top: 2px; font-size: .82rem; color: var(--ink-3); }
+.badge.permuta { margin-left: 6px; background: #10201d; color: #fff; }
 h1 { margin-top: 2px; font-size: 1.2rem; line-height: 1.3; }
 .where { margin-top: 8px; display: flex; align-items: center; gap: 6px; color: var(--ink-2); }
 .facts { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 10px; }

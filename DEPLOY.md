@@ -92,9 +92,12 @@ O site pode publicar os empreendimentos da Bambuí **sem a VPS**: a importação
   continua com a versão anterior.
 - **Preço, registro de incorporação, previsão de entrega, destaque, publicar os já prontos:** edite `data/bambui-ajustes.json`
   (guia em `data/LEIA-ME.md`) direto no GitHub. A importação nunca sobrescreve esse arquivo.
+- **Tabelas, permutas e fotos (Drive da Bambuí):** `npm run sync:drive` lê as tabelas do mês (a rotina faz sozinha do 1º dia útil ao
+  dia 7); `npm run sync:fotos` copia fotos para `frontend/public/fotos/` (rodar à mão e dar commit); permutas em `data/bambui-permutas.json`.
+  Detalhes em `data/LEIA-ME.md`. A pasta do Drive precisa continuar pública ("qualquer pessoa com o link").
 - **Rodar à mão:** `cd backend && npm run export:bambui` (`--dry-run` só mostra; `--from-dir=<pasta>` lê páginas já salvas).
 - **Requisitos no GitHub:** *Settings → Actions → General → Workflow permissions* = *Read and write*; e a branch `main` sem
   proteção que impeça o push do `habitse-bot`.
-- **Limites:** só os empreendimentos da Bambuí (não há cadastro de outros anúncios nesse modo); as fotos continuam apontando para
-  o site da Bambuí.
+- **Limites:** só os empreendimentos da Bambuí (não há cadastro de outros anúncios nesse modo); as fotos vêm de `frontend/public/fotos/`
+  (copiadas do Drive) e, na falta delas, do site da Bambuí.
 

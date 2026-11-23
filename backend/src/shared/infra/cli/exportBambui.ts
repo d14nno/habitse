@@ -8,6 +8,9 @@
  *
  * Grava: frontend/public/data/empreendimentos.json e frontend/public/sitemap.xml
  * Lê:    data/bambui-ajustes.json (preço, registro de incorporação, entrega… editados à mão; nunca sobrescrito)
+ *        data/bambui-tabelas.json (preço "a partir de", entrega e registro lidos das tabelas do Drive: `npm run sync:drive`)
+ *        data/bambui-permutas.json (imóveis de permuta da Bambuí)
+ *        data/bambui-fotos.json (fotos copiadas do Drive para o site: `npm run sync:fotos`)
  *
  * Se alguma página não puder ser lida (site fora do ar, rede), NADA é gravado: o catálogo anterior continua valendo.
  */
@@ -16,7 +19,9 @@ import path from 'path'
 
 import { InMemoryListingRepository } from '@modules/listings/infra/InMemoryListingRepository'
 import { BambuiImportService } from '@modules/listings/services/BambuiImportService'
-import { buildCatalog, buildSitemap, catalogToJson, Catalog, validateAdjustments } from '@modules/listings/services/StaticCatalog'
+import { permutaToListing, validatePermutas } from '@modules/listings/services/PermutaCatalog'
+import { TableInfos } from '@modules/listings/services/PriceTableSync'
+import { adjustmentsFromPhotos, adjustmentsFromTables, buildCatalog, buildSitemap, catalogToJson, Catalog, mergeAdjustments, validateAdjustments } from '@modules/listings/services/StaticCatalog'
 
 const root = path.resolve(process.cwd(), '..')
 const flag = (name: string) => process.argv.includes(`--${name}`)
@@ -25,6 +30,9 @@ const value = (name: string, fallback: string) => process.argv.find(arg => arg.s
 const catalogPath = path.resolve(root, value('out', 'frontend/public/data/empreendimentos.json'))
 const sitemapPath = path.resolve(root, value('sitemap', 'frontend/public/sitemap.xml'))
 const adjustmentsPath = path.resolve(root, value('ajustes', 'data/bambui-ajustes.json'))
+const tablesPath = path.resolve(root, value('tabelas', 'data/bambui-tabelas.json'))
+const photosPath = path.resolve(root, value('fotos', 'data/bambui-fotos.json'))
+const permutasPath = path.resolve(root, value('permutas', 'data/bambui-permutas.json'))
 const siteUrl = value('site', 'https://habitse.com.br')
 
 /** Páginas já salvas em disco: a lista (/lancamentos) é montada a partir dos arquivos <slug>.html */
@@ -57,6 +65,15 @@ async function main() {
         process.exit(1)
     }
 
+    const photos = existsSync(photosPath) ? adjustmentsFromPhotos(readJson(photosPath) as Record<string, { file: string }[]>) : {}
+    const tables = existsSync(tablesPath) ? (readJson(tablesPath) as TableInfos) : {}
+
+    const permutas = existsSync(permutasPath) ? validatePermutas(readJson(permutasPath)) : { file: null, errors: [] as string[] }
+    if (permutas.errors.length) {
+        console.error(`❌ Permutas inválidas em ${path.relative(root, permutasPath)}:\n${permutas.errors.map(error => `   - ${error}`).join('\n')}`)
+        process.exit(1)
+    }
+
     const sink = new InMemoryListingRepository()
     const fromDir = process.argv.find(arg => arg.startsWith('--from-dir='))?.split('=')[1]
     const outcomes = await new BambuiImportService(sink, fromDir ? fetchFromDir(path.resolve(fromDir)) : fetchPage, fromDir ? 0 : 1000).run()
@@ -71,13 +88,13 @@ async function main() {
     for (const slug of unknown) console.warn(`⚠️  ajuste para "${slug}": esse empreendimento não existe mais no site da Bambuí (ignorado)`)
 
     const previous: Catalog | null = existsSync(catalogPath) ? (readJson(catalogPath) as Catalog) : null
-    const catalog = buildCatalog(sink.listings, adjustments, previous)
+    const catalog = buildCatalog([...sink.listings, ...(permutas.file?.imoveis ?? []).map(permutaToListing)], mergeAdjustments(mergeAdjustments(photos, adjustmentsFromTables(tables)), adjustments), previous)
     const json = catalogToJson(catalog)
     const sitemap = buildSitemap(catalog, siteUrl)
 
     for (const item of catalog.items) {
-        const pending = [item.price === null ? 'preço' : '', item.incorporation === null ? 'registro de incorporação' : '', item.deliveryDate === null && item.category !== 'used' ? 'previsão de entrega' : ''].filter(Boolean)
-        console.log(`✅ ${item.title} [${item.categoryLabel}]${pending.length ? ` — falta: ${pending.join(', ')}` : ''}`)
+        const pending = item.permuta ? [] : [item.price === null ? 'preço' : '', item.incorporation === null ? 'registro de incorporação' : '', item.deliveryDate === null && item.category !== 'used' ? 'previsão de entrega' : ''].filter(Boolean)
+        console.log(`✅ ${item.title} [${item.permuta ? 'Permuta' : item.categoryLabel}]${pending.length ? ` — falta: ${pending.join(', ')}` : ''}`)
     }
     const hidden = sink.listings.length - catalog.items.length
     if (hidden > 0) console.log(`ℹ️  ${hidden} empreendimento(s) fora do site (rascunho: prontos para morar). Para publicar, use "status": "published" em ${path.relative(root, adjustmentsPath)}.`)

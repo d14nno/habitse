@@ -34,6 +34,7 @@ describe('catálogo estático: mesmas regras da API', () => {
         expect(card).not.toHaveProperty('description')
         expect(card).not.toHaveProperty('photos')
         expect(card).not.toHaveProperty('incorporation')
+        expect(card).not.toHaveProperty('priceNote')
         expect(card).toHaveProperty('cover')
     })
 

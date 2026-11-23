@@ -1,9 +1,9 @@
 {
-  "areiao-1141": { "price": null, "incorporation": null, "deliveryDate": null, "featured": true },
-  "praca-232": { "price": null, "incorporation": null, "deliveryDate": null, "featured": true },
-  "marista-262": { "price": null, "incorporation": null, "deliveryDate": null, "featured": true },
-  "b-great-bosque-dos-buritis": { "price": null, "incorporation": null, "deliveryDate": null },
-  "bgreat-nova-suica": { "price": null, "incorporation": null, "deliveryDate": null },
-  "ares-marista": { "price": null, "incorporation": null, "deliveryDate": null },
-  "vox-home": { "price": null, "incorporation": null, "deliveryDate": null }
+  "areiao-1141": { "featured": true },
+  "praca-232": { "featured": true },
+  "marista-262": { "featured": true },
+  "b-great-bosque-dos-buritis": {},
+  "bgreat-nova-suica": {},
+  "ares-marista": {},
+  "vox-home": {}
 }

@@ -31,6 +31,8 @@ cd frontend && npm install && npm run dev      # http://localhost:5180
 
 A Bambuí é a construtora dona dos empreendimentos anunciados. `npm run import:bambui` (banco) e `npm run export:bambui` (catálogo
 estático, sem VPS) leem as páginas públicas dela; veja o `DEPLOY.md` e `data/LEIA-ME.md`.
+Preço "a partir de", entrega e registro vêm das tabelas mensais do Drive (`npm run sync:drive`), as fotos são copiadas do Drive
+(`npm run sync:fotos`) e as permutas ficam em `data/bambui-permutas.json`.
 
 ## Pendências conhecidas
 

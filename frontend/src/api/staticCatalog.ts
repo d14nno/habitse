@@ -5,7 +5,7 @@ import type { CategoryKey, Facets, ListingCard, ListingDetail, Paginated, Sort }
  * com o site), sem depender da API. Aqui ficam as mesmas regras de filtro, ordenação, paginação e sugestões que a API
  * aplica no banco, para o resto do site não perceber a diferença.
  */
-export type CatalogItem = Omit<ListingDetail, 'related'> & { incorporation?: string | null }
+export type CatalogItem = Omit<ListingDetail, 'related'>
 
 export interface Catalog {
     version: number
@@ -49,7 +49,7 @@ const SORTS: Record<Sort, (a: CatalogItem, b: CatalogItem) => number> = {
     area_desc: byNullsLast(item => item.area, -1)
 }
 
-export const toCard = ({ address: _address, description: _description, features: _features, photos: _photos, updatedAt: _updatedAt, incorporation: _incorporation, ...card }: CatalogItem): ListingCard => card
+export const toCard = ({ address: _address, description: _description, features: _features, photos: _photos, updatedAt: _updatedAt, incorporation: _incorporation, priceNote: _priceNote, ...card }: CatalogItem): ListingCard => card
 
 export function listCatalog(catalog: Catalog, query: CatalogQuery): Paginated<ListingCard> {
     const needle = query.q ? fold(query.q) : null

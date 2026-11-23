@@ -1,14 +1,15 @@
 name: Atualizar empreendimentos da Bambuí
 
 # Lê o site da Bambuí, aplica os ajustes de data/bambui-ajustes.json e atualiza o catálogo que o site publica.
-# Roda todo dia, quando o arquivo de ajustes muda (preço, registro de incorporação…) e sob demanda (aba Actions > Run workflow).
+# Roda todo dia, quando os arquivos de ajustes/permutas mudam e sob demanda (aba Actions > Run workflow).
+# Uma vez por mês (do 1º dia útil até o dia 7) lê também as tabelas de preço da pasta do Drive da Bambuí.
 on:
   schedule:
     - cron: '0 9 * * *' # 06:00 em Brasília
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['data/bambui-ajustes.json']
+    paths: ['data/bambui-ajustes.json', 'data/bambui-permutas.json']
 
 permissions:
   contents: write
@@ -33,6 +34,13 @@ jobs:
         run: npm ci
         working-directory: backend
 
+      # Preço "a partir de", entrega e registro de incorporação vêm das tabelas do mês. Na rotina diária só roda no começo do
+      # mês; sob demanda (Run workflow) roda sempre. Se a pasta estiver incompleta ou fora do ar, mantém as tabelas anteriores.
+      - name: Ler as tabelas de preço do Drive
+        run: npm run sync:drive ${{ github.event_name == 'schedule' && '-- --start-of-month' || '' }}
+        working-directory: backend
+        continue-on-error: true
+
       # Se o site da Bambuí estiver fora do ar ou os ajustes tiverem erro, esta etapa falha e NADA muda no site
       - name: Gerar o catálogo
         run: npm run export:bambui
@@ -42,7 +50,7 @@ jobs:
         run: |
           git config user.name "habitse-bot"
           git config user.email "habitse-bot@users.noreply.github.com"
-          git add frontend/public/data/empreendimentos.json frontend/public/sitemap.xml
+          git add data/bambui-tabelas.json frontend/public/data/empreendimentos.json frontend/public/sitemap.xml
           if git diff --cached --quiet; then
             echo "Sem mudanças no catálogo."
           else

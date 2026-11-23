@@ -1,6 +1,6 @@
 import { Listing } from '../entities/Listing'
 import { ListingCategory } from '../enums/ListingCategory'
-import { applyAdjustment, buildCatalog, buildSitemap, catalogToJson, validateAdjustments } from './StaticCatalog'
+import { adjustmentsFromPhotos, adjustmentsFromTables, applyAdjustment, buildCatalog, buildSitemap, catalogToJson, mergeAdjustments, validateAdjustments } from './StaticCatalog'
 
 const listing = (slug: string, extra: Partial<Listing['props']> = {}) => Listing.create({
     slug, title: slug, category: ListingCategory.UNDER_CONSTRUCTION, type: 'apartamento', status: 'published', price: null, city: 'Goiânia', state: 'GO', neighborhood: 'Setor Marista', address: 'Rua 1',
@@ -72,5 +72,42 @@ describe('catálogo estático', () => {
         expect(xml).toContain('<loc>https://habitse.com.br/</loc>')
         expect(xml).toContain('<loc>https://habitse.com.br/em-construcao</loc>')
         expect(xml).toContain('<loc>https://habitse.com.br/imovel/praca-232</loc><lastmod>2026-11-20</lastmod>')
+    })
+})
+
+describe('preço e registro vindos das tabelas do Drive', () => {
+    const info = { month: '2026-11', priceFrom: 1784700, availableCount: 40, keysDate: '2028-03', registry: 'R-3-379.445 no Cartório X' }
+
+    it('viram ajustes; o que foi editado à mão vale mais, e o que não foi editado vem da tabela', () => {
+        const fromTables = adjustmentsFromTables({ 'praca-232': info, 'vox-home': { ...info, keysDate: null, registry: null } }, new Date(2026, 10, 25))
+
+        expect(fromTables['praca-232']).toEqual({ price: 1784700, priceNote: 'Tabela de novembro de 2026 · 40 unidades disponíveis', deliveryDate: '2028-03', incorporation: 'R-3-379.445 no Cartório X' })
+        expect(fromTables['vox-home']).not.toHaveProperty('incorporation')
+
+        const merged = mergeAdjustments(fromTables, { 'praca-232': { price: 1800000, featured: true, incorporation: undefined }, 'marista-262': { featured: true } })
+
+        expect(merged['praca-232']).toMatchObject({ price: 1800000, featured: true, deliveryDate: '2028-03', incorporation: 'R-3-379.445 no Cartório X' })
+        expect(merged['marista-262']).toEqual({ featured: true })
+    })
+
+    it('tabela com mais de dois meses não vale (o preço volta a "sob consulta")', () => {
+        expect(adjustmentsFromTables({ 'praca-232': info }, new Date(2027, 1, 2))).toEqual({})
+    })
+
+    it('o catálogo leva a observação do preço e marca os anúncios de permuta', () => {
+        const catalog = buildCatalog([listing('praca-232'), listing('permuta-gran-campinas', { category: ListingCategory.USED })], { 'praca-232': { price: 1784700, priceNote: 'Tabela de novembro de 2026 · 40 unidades disponíveis' } }, null)
+
+        expect(catalog.items.map(item => [item.slug, item.permuta, item.priceNote])).toEqual([['permuta-gran-campinas', true, null], ['praca-232', false, 'Tabela de novembro de 2026 · 40 unidades disponíveis']])
+        expect(validateAdjustments({ a: { priceNote: 5 } }).errors[0]).toMatch(/^a\.priceNote: use um texto/)
+    })
+})
+
+describe('fotos copiadas do Drive', () => {
+    it('viram a galeria do anúncio, e as fotos escolhidas à mão nos ajustes valem mais', () => {
+        const fromPhotos = adjustmentsFromPhotos({ 'praca-232': [{ file: '/fotos/praca-232/01.jpg' }, { file: '/fotos/praca-232/02.jpg' }], vazio: [] })
+
+        expect(fromPhotos).toEqual({ 'praca-232': { photos: ['/fotos/praca-232/01.jpg', '/fotos/praca-232/02.jpg'] } })
+        expect(mergeAdjustments(fromPhotos, { 'praca-232': { photos: ['/outra.jpg'] } })['praca-232'].photos).toEqual(['/outra.jpg'])
+        expect(buildCatalog([listing('praca-232')], fromPhotos, null).items[0]).toMatchObject({ cover: '/fotos/praca-232/01.jpg', photoCount: 2 })
     })
 })

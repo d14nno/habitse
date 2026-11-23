@@ -1,0 +1,16 @@
+{
+  "referencia": "2026-10",
+  "imoveis": [
+    { "id": "palco-vaca-brava", "tipo": "apartamento", "cidade": "Goiânia", "bairro": "Jardim América", "condominio": "Edifício Palco Vaca Brava", "quartos": 3, "suites": 3, "vagas": 2, "area": 98, "valor": 930000, "valorCondominio": 960, "destaques": ["27º andar", "Mobília opcional (a consultar)"] },
+    { "id": "sobrado-jardins-madri", "tipo": "casa", "cidade": "Goiânia", "bairro": "Jardins Madri", "condominio": null, "quartos": 4, "vagas": 4, "area": 337.54, "areaTerreno": 376.48, "valor": 2450000, "valorCondominio": 1000, "destaques": ["Área gourmet e piscina", "Em condomínio consolidado"] },
+    { "id": "sobrado-nova-suica", "tipo": "casa", "cidade": "Goiânia", "bairro": "Nova Suíça", "condominio": null, "quartos": 4, "area": 202, "valor": 850000, "valorCondominio": null },
+    { "id": "gran-campinas", "tipo": "apartamento", "cidade": "Goiânia", "bairro": "Setor dos Funcionários", "condominio": "Edifício Gran Campinas", "quartos": 3, "suites": 1, "area": 69.27, "valor": 420000, "valorCondominio": 540, "destaques": ["9º andar", "Vista para a praça", "Sacada fechada em vidro", "Condomínio com lazer completo"] },
+    { "id": "edificio-estevao", "tipo": "apartamento", "cidade": "Goiânia", "bairro": "Setor Leste Vila Nova", "condominio": "Edifício Estêvão", "quartos": 2, "area": 67.42, "valor": 170000, "valorCondominio": 350, "destaques": ["3º andar, acesso por escadas (sem elevador)", "Sem garagem", "Aceita carro como parte do pagamento"] },
+    { "id": "new-park-clube", "tipo": "apartamento", "cidade": "Goiânia", "bairro": "Jardim Atlântico", "condominio": "Residencial New Park Clube", "quartos": 3, "area": 83, "valor": 540000, "valorCondominio": 650 },
+    { "id": "lote-garavelo", "tipo": "terreno", "cidade": "Aparecida de Goiânia", "bairro": "Garavelo", "condominio": null, "quartos": 0, "area": 506.51, "valor": 650000, "valorCondominio": null, "destaques": ["Lote plano em avenida asfaltada", "Frente de 12,10 m e comprimento de 41,86 m", "Potencial para projetos comerciais ou residenciais"] },
+    { "id": "lote-santos-dumont", "tipo": "terreno", "cidade": "Goiânia", "bairro": "Santos Dumont", "condominio": null, "quartos": 0, "area": 443.8, "valor": 320000, "valorCondominio": null, "destaques": ["Lote de 14 x 30 m", "Casa antiga de 8 ambientes, para reformar ou construir"] },
+    { "id": "lote-sollar-ville", "tipo": "terreno", "cidade": "Goiânia", "bairro": "Sollar Ville", "condominio": null, "quartos": 0, "area": 200, "valor": 130000, "valorCondominio": null, "destaques": ["Lote de 10 x 20 m"] },
+    { "id": "lote-trindade-romeiros", "tipo": "terreno", "cidade": "Trindade", "bairro": "Rodovia dos Romeiros", "condominio": null, "quartos": 0, "area": 292, "valor": 330000, "valorCondominio": 511 },
+    { "id": "lote-talisma", "tipo": "terreno", "cidade": "Guapó", "bairro": "Loteamento Talismã", "condominio": null, "quartos": 0, "area": 2544.9, "valor": 280000, "valorCondominio": 483 }
+  ]
+}

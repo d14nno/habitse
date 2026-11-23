@@ -24,6 +24,8 @@ export interface ListingCard {
     deliveryDate: string | null
     constructionProgress: number | null
     featured: boolean
+    /** Imóvel de permuta da Bambuí (selo no cartão); só no catálogo estático */
+    permuta?: boolean
 }
 
 export interface ListingDetail extends ListingCard {
@@ -35,6 +37,8 @@ export interface ListingDetail extends ListingCard {
     related: ListingCard[]
     /** Registro de incorporação e incorporador (publicidade de empreendimento); só no catálogo estático */
     incorporation?: string | null
+    /** Observação sob o preço (tabela de origem e unidades disponíveis); só no catálogo estático */
+    priceNote?: string | null
 }
 
 export interface Paginated<T> {
