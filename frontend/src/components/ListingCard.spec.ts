@@ -30,7 +30,6 @@ describe('ListingCard', () => {
         expect(text).toContain('a partir de')
         expect(text).toContain('Entrega ago/2027')
         expect(text).toContain('Obra 62% concluída')
-        expect(text).toContain('5 fotos')
     })
 
     it('imóvel usado não mostra entrega nem andamento; sem valor vira "Sob consulta"', () => {

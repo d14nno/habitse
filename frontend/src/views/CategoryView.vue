@@ -100,10 +100,8 @@ useInfiniteScroll(sentinel, () => search.loadMore())
 
 <template>
     <div class="container">
-        <nav class="crumbs" aria-label="Trilha"><RouterLink to="/">Início</RouterLink> / <span>{{ title }}</span></nav>
         <header class="head">
             <h1>{{ title }}</h1>
-            <p>{{ description }}</p>
         </header>
 
         <div class="tools">
@@ -147,18 +145,14 @@ useInfiniteScroll(sentinel, () => search.loadMore())
 
         <div v-if="search.loadingMore.value" class="grid more"><CardSkeleton v-for="n in 3" :key="n" /></div>
         <div ref="sentinel" class="sentinel" aria-hidden="true" />
-        <p v-if="!search.hasMore.value && search.items.value.length > 6" class="end muted">Você viu todos os imóveis desta lista.</p>
 
         <FilterSheet :open="sheetOpen" :filters="filters" :facets="facets" :total="search.total.value" @close="sheetOpen = false" @apply="next => { sheetOpen = false; setFilters(next) }" />
     </div>
 </template>
 
 <style scoped>
-.crumbs { padding-top: 22px; font-size: .86rem; color: var(--ink-3); }
-.crumbs span { color: var(--ink); }
-.head { padding: 14px 0 20px; }
+.head { padding: 28px 0 16px; }
 .head h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.06; }
-.head p { margin-top: 12px; max-width: 58ch; color: var(--ink-3); line-height: 1.6; }
 .tools { position: sticky; top: var(--header-h); z-index: 20; display: flex; gap: 8px; margin: 0 -16px; padding: 10px 16px; background: rgba(245, 242, 235, .96); backdrop-filter: blur(8px); }
 .find { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 12px; border: 1px solid #cfc9bb; border-radius: var(--radius-sm); background: var(--card); color: var(--ink-3); }
 .find input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 1rem; color: var(--ink); }
@@ -171,7 +165,6 @@ useInfiniteScroll(sentinel, () => search.loadMore())
 .grid { gap: 40px 32px; }
 .more { margin-top: 16px; }
 .sentinel { height: 1px; }
-.end { margin: 32px 0 4px; text-align: center; font-size: .9rem; }
 .retry { margin-left: 8px; border: 0; background: none; text-decoration: underline; font-weight: 700; color: inherit; }
 @media (min-width: 900px) { .tools { margin: 0; padding-left: 0; padding-right: 0; } }
 </style>

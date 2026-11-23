@@ -20,11 +20,10 @@ const failed = ref(false)
 
 const form = ref({ q: '', suites: '', max: '' })
 
-const MAIN = CATEGORIES.filter(category => category.key !== 'used')
-const opportunities = CATEGORIES.find(category => category.key === 'used')!
 
 const neighborhoods = computed(() => (facets.value?.neighborhoods ?? []).slice().sort((a, b) => b.total - a.total || a.neighborhood.localeCompare(b.neighborhood)).slice(0, 8))
 const consultMessage = `Olá! Vim pelo site da ${SITE.name} e gostaria de conversar com um consultor.`
+const upgradeMessage = 'Olá! Tenho um imóvel e gostaria de saber como usá-lo como parte do pagamento em um upgrade.'
 
 function submit() {
     const query: Record<string, string> = {}
@@ -67,7 +66,6 @@ onMounted(async () => {
             <img class="bg" src="/img/abertura.jpg" alt="Fachada de edifício residencial ao entardecer" fetchpriority="high" width="1280" height="1600">
             <div class="scrim" />
             <div class="container inner">
-                <p class="eyebrow">Goiânia e região</p>
                 <h1>Uma seleção de imóveis para o seu próximo capítulo.</h1>
                 <p class="lead">Localização, arquitetura e escolhas alinhadas ao seu momento de vida.</p>
                 <div class="cta">
@@ -90,46 +88,40 @@ onMounted(async () => {
             </form>
 
             <section class="section" aria-labelledby="caminhos">
-                <p class="eyebrow">Como você quer começar</p>
-                <h2 id="caminhos">Três caminhos, a mesma clareza.</h2>
+                <h2 id="caminhos">Categorias</h2>
                 <div class="cats">
-                    <RouterLink v-for="category in MAIN" :key="category.key" :to="`/${category.slug}`" class="cat">
+                    <RouterLink v-for="category in CATEGORIES" :key="category.key" :to="`/${category.slug}`" class="cat">
                         <div class="photo"><img v-if="covers[category.key]?.cover" :src="covers[category.key]!.cover!" :alt="category.label" loading="lazy" width="640" height="480"><span v-else>{{ category.label }}</span></div>
                         <h3>{{ category.label }}</h3>
-                        <p>{{ category.description }}</p>
-                        <span v-if="covers[category.key] && covers[category.key]!.total === 0" class="soon">Sem imóveis no momento. Peça uma seleção personalizada.</span>
-                        <span v-else class="go-link">Ver {{ covers[category.key] ? `${covers[category.key]!.total} ${covers[category.key]!.total === 1 ? 'imóvel' : 'imóveis'}` : 'imóveis' }} →</span>
+                        <span class="go-link">{{ covers[category.key] ? (covers[category.key]!.total ? `${covers[category.key]!.total} ${covers[category.key]!.total === 1 ? 'imóvel' : 'imóveis'}` : 'Sem imóveis no momento') : 'Ver imóveis' }} →</span>
                     </RouterLink>
                 </div>
-                <RouterLink :to="`/${opportunities.slug}`" class="band">
-                    <div>
-                        <p class="eyebrow">{{ opportunities.label }}</p>
-                        <p class="band-text">{{ opportunities.description }}</p>
-                    </div>
-                    <span class="go-link">Ver {{ covers.used ? covers.used.total : '' }} {{ covers.used?.total === 1 ? 'oportunidade' : 'oportunidades' }} →</span>
-                </RouterLink>
             </section>
 
             <section class="section" aria-labelledby="selecao">
                 <div class="section-head">
-                    <div>
-                        <p class="eyebrow">Seleção</p>
-                        <h2 id="selecao">Imóveis para conhecer primeiro.</h2>
-                    </div>
-                    <RouterLink :to="`/${ALL_SLUG}`">Ver todos os imóveis</RouterLink>
+                    <h2 id="selecao">Seleção</h2>
+                    <RouterLink :to="`/${ALL_SLUG}`">Ver todos</RouterLink>
                 </div>
-                <p class="intro">Só aparece o que está cadastrado: área, suítes, vagas e valor. Quando uma informação não está disponível, ela não é exibida.</p>
                 <div v-if="loading" class="grid"><CardSkeleton v-for="n in 3" :key="n" /></div>
                 <p v-else-if="failed" class="notice" role="alert">Não conseguimos carregar os imóveis agora. Tente novamente em instantes ou fale com um consultor pelo WhatsApp.</p>
                 <div v-else-if="featured.length" class="grid"><ListingCard v-for="(item, i) in featured" :key="item.id" :listing="item" :eager="i === 0" /></div>
                 <p v-else class="muted">Nenhum imóvel em destaque agora. <a :href="whatsappLink(consultMessage)" target="_blank" rel="noopener" class="under">Peça uma seleção personalizada.</a></p>
             </section>
 
+            <section class="section" aria-labelledby="upgrade">
+                <div class="upgrade">
+                    <div>
+                        <h2 id="upgrade">Quer fazer um upgrade no seu imóvel?</h2>
+                        <p>Use o seu imóvel como parte do pagamento. Conte o que você tem e um consultor apresenta as opções que fazem sentido para você, com as condições de cada uma.</p>
+                    </div>
+                    <a class="btn primary" :href="whatsappLink(upgradeMessage)" target="_blank" rel="noopener">Avaliar meu imóvel</a>
+                </div>
+            </section>
+
             <section v-if="neighborhoods.length" class="section hoods" aria-labelledby="bairros">
                 <div class="side">
-                    <p class="eyebrow">Bairros</p>
-                    <h2 id="bairros">Comece pela região que você já escolheu.</h2>
-                    <p class="intro">Apenas bairros com imóveis cadastrados hoje; a lista acompanha o catálogo.</p>
+                    <h2 id="bairros">Bairros</h2>
                 </div>
                 <ul>
                     <li v-for="item in neighborhoods" :key="`${item.city}-${item.neighborhood}`">
@@ -144,9 +136,8 @@ onMounted(async () => {
         <section id="atendimento" class="care">
             <div class="container care-in">
                 <div>
-                    <p class="eyebrow">Atendimento</p>
-                    <h2>Orientação antes da visita, clareza antes da decisão.</h2>
-                    <p class="care-text">Um consultor ajuda a comparar localização, projeto, entrega e condições, e confirma disponibilidade e documentação de cada imóvel antes de qualquer proposta.</p>
+                    <h2>Atendimento com orientação.</h2>
+                    <p class="care-text">Comparamos localização, projeto, entrega e condições, e confirmamos disponibilidade e documentação antes de qualquer proposta.</p>
                 </div>
                 <div class="who">
                     <p class="name">{{ SITE.consultant }}</p>
@@ -154,7 +145,6 @@ onMounted(async () => {
                     <p class="phone">WhatsApp {{ SITE.phone }}</p>
                     <div class="care-cta">
                         <a class="btn light" :href="whatsappLink(consultMessage)" target="_blank" rel="noopener">Conversar com um consultor</a>
-                        <a class="btn ghost-light" :href="whatsappLink('Olá! Gostaria de receber uma seleção personalizada de imóveis.')" target="_blank" rel="noopener">Receber seleção personalizada</a>
                     </div>
                 </div>
             </div>
@@ -177,32 +167,28 @@ h1 { max-width: 14ch; margin-top: 16px; font-size: clamp(2.3rem, 8vw, 4.3rem); l
 .f span { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; color: var(--ink-3); }
 .f input, .f select { height: 48px; padding: 0 12px; border: 1px solid #cfc9bb; border-radius: var(--radius-sm); background: var(--bg); font-size: 1rem; color: var(--ink); width: 100%; }
 .go { grid-column: 1 / -1; }
-.section h2 { margin-top: 10px; font-size: clamp(1.8rem, 5vw, 2.75rem); line-height: 1.1; }
+.section h2 { margin-top: 0; font-size: clamp(1.8rem, 5vw, 2.75rem); line-height: 1.1; }
 .section { padding-top: 72px; }
 .section-head { align-items: flex-end; flex-wrap: wrap; margin-bottom: 0; }
-.intro { margin-top: 14px; max-width: 58ch; color: var(--ink-3); line-height: 1.6; }
-.cats { margin-top: 32px; display: grid; gap: 36px; }
+.cats { margin-top: 28px; display: grid; gap: 28px; grid-template-columns: 1fr 1fr; }
 .cat { display: block; }
 .photo { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: #d9d3c5; display: grid; place-items: center; color: var(--ink-3); }
 .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.cat h3 { margin-top: 18px; font-size: 1.75rem; }
-.cat p { margin-top: 8px; color: var(--ink-3); line-height: 1.55; }
-.go-link { display: inline-block; margin-top: 14px; font-weight: 600; font-size: .94rem; color: var(--brand); }
-.soon { display: inline-block; margin-top: 14px; font-size: .9rem; color: var(--ink-3); }
-.band { margin-top: 40px; display: flex; flex-direction: column; gap: 6px; padding: 28px 24px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.band-text { margin-top: 8px; max-width: 60ch; color: var(--ink-2); line-height: 1.55; }
-.band .go-link { margin-top: 8px; }
-.grid { margin-top: 32px; }
+.cat h3 { margin-top: 16px; font-size: 1.5rem; }
+.go-link { display: inline-block; margin-top: 8px; font-weight: 600; font-size: .94rem; color: var(--brand); }
+.grid { margin-top: 28px; }
 .under { text-decoration: underline; text-underline-offset: 4px; }
-.hoods { display: grid; gap: 28px; }
+.upgrade { display: grid; gap: 20px; padding: 28px 24px; border: 1px solid var(--line); border-left: 3px solid var(--sand); background: var(--card); border-radius: var(--radius); }
+.upgrade h2 { font-size: clamp(1.5rem, 4vw, 2.1rem); line-height: 1.15; }
+.upgrade p { margin-top: 10px; max-width: 60ch; color: var(--ink-3); line-height: 1.6; }
+.hoods { display: grid; gap: 20px; }
 .hoods ul { list-style: none; margin: 0; padding: 0; }
 .hoods li a { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 20px 0; border-top: 1px solid var(--line); }
 .hoods li:last-child a { border-bottom: 1px solid var(--line); }
 .hoods li b { font-family: var(--serif); font-weight: 500; font-size: 1.6rem; }
 .hoods li span { font-size: .9rem; color: var(--ink-3); }
 .hoods li a:hover b { color: var(--brand); text-decoration: underline; text-decoration-color: var(--sand); text-underline-offset: 6px; }
-.care { margin-top: 96px; padding: 72px 0; background: var(--brand); color: var(--bg); }
-.care .eyebrow { color: var(--sand); }
+.care { margin-top: 80px; padding: 64px 0; background: var(--brand); color: var(--bg); }
 .care h2 { margin-top: 12px; max-width: 18ch; font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.1; color: var(--bg); }
 .care-text { margin-top: 18px; max-width: 50ch; line-height: 1.65; color: #e4dfd3; }
 .care-in { display: grid; gap: 40px; }
@@ -217,9 +203,9 @@ h1 { max-width: 14ch; margin-top: 16px; font-size: clamp(2.3rem, 8vw, 4.3rem); l
     .search { grid-template-columns: 2fr 1fr 1fr auto; align-items: end; padding: 22px 24px; margin-top: -48px; }
     .f.wide { grid-column: auto; }
     .go { grid-column: auto; min-width: 150px; }
-    .cats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; }
-    .band { flex-direction: row; align-items: center; justify-content: space-between; }
-    .section { padding-top: 112px; }
+    .cats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; }
+        .section { padding-top: 96px; }
+    .upgrade { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 48px; padding: 36px 40px; }
     .hoods { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 80px; align-items: start; }
     .care { padding: 96px 0; }
     .care-in { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 80px; align-items: center; }

@@ -7,7 +7,7 @@ import { SITE, whatsappLink } from '@/config'
 import { setSeo } from '@/composables/useSeo'
 import { useFavorites } from '@/composables/useFavorites'
 import { categoryByKey, typeLabel } from '@/utils/categories'
-import { count, formatArea, formatDelivery, formatPrice, priceLead } from '@/utils/format'
+import { formatArea, formatDelivery, formatPrice, priceLead } from '@/utils/format'
 import type { ListingDetail } from '@/types/Listing'
 import AppIcon from '@/components/AppIcon.vue'
 import ListingCard from '@/components/ListingCard.vue'
@@ -53,7 +53,8 @@ const facts = computed(() => {
     const item = listing.value
     if (!item) return []
     const list: { icon: string, label: string, value: string }[] = []
-    if (item.bedrooms) list.push({ icon: 'bed', label: 'Quartos', value: item.suites ? `${item.bedrooms} (${count(item.suites, 'suíte')})` : String(item.bedrooms) })
+    if (item.suites) list.push({ icon: 'bed', label: 'Suítes', value: String(item.suites) })
+    else if (item.bedrooms) list.push({ icon: 'bed', label: 'Quartos', value: String(item.bedrooms) })
     if (item.bathrooms) list.push({ icon: 'bath', label: 'Banheiros', value: String(item.bathrooms) })
     if (item.parking) list.push({ icon: 'car', label: 'Vagas', value: String(item.parking) })
     const area = formatArea(item.area)
@@ -222,6 +223,7 @@ h1 { margin-top: 6px; font-size: 1.7rem; line-height: 1.2; }
 .features svg { color: var(--brand); flex: none; }
 .cta { position: fixed; left: 0; right: 0; bottom: calc(var(--nav-h) + var(--safe-bottom)); z-index: 45; display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: rgba(245, 242, 235, .98); border-top: 1px solid var(--line); }
 .cta-price { display: grid; line-height: 1.15; }
+@media (min-width: 900px) { .cta-price { display: none; } }
 .cta-price small { color: var(--ink-3); font-size: .72rem; }
 .cta-price b { font-family: var(--serif); font-size: 1.25rem; font-weight: 500; }
 .grow { flex: 1; }

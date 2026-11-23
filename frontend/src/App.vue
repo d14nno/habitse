@@ -1,15 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-
 import AppHeader from '@/components/AppHeader.vue'
 import BottomNav from '@/components/BottomNav.vue'
 import SiteFooter from '@/components/SiteFooter.vue'
-import WhatsAppFab from '@/components/WhatsAppFab.vue'
 
-const route = useRoute()
-// Na página do imóvel já existe a barra de contato fixa: o botão flutuante sairia na frente
-const showFab = computed(() => route.name !== 'listing')
 </script>
 
 <template>
@@ -21,7 +14,6 @@ const showFab = computed(() => route.name !== 'listing')
         </RouterView>
         <SiteFooter />
     </main>
-    <WhatsAppFab v-if="showFab" />
     <BottomNav />
 </template>
 

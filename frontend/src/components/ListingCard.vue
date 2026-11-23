@@ -27,7 +27,6 @@ const status = computed(() => {
             <RouterLink :to="`/imovel/${listing.slug}`" class="photo" :aria-label="`Ver ${listing.title}`">
                 <img v-if="listing.cover" :src="listing.cover" :alt="listing.title" :loading="eager ? 'eager' : 'lazy'" decoding="async" width="640" height="480">
                 <span v-else class="noimg">Sem foto</span>
-                <span v-if="listing.photoCount > 1" class="count">{{ listing.photoCount }} fotos</span>
             </RouterLink>
             <button type="button" class="fav" :class="{ on: favorite }" :aria-pressed="favorite" :aria-label="favorite ? 'Remover dos favoritos' : 'Salvar nos favoritos'" @click="favorites.toggle(listing.slug)">
                 <AppIcon name="heart" :size="22" />
@@ -43,10 +42,7 @@ const status = computed(() => {
 
             <template v-if="listing.category === 'under_construction' || listing.category === 'off_plan'">
                 <ProgressBar v-if="listing.category === 'under_construction' && listing.constructionProgress !== null" :value="listing.constructionProgress" compact />
-                <p v-if="delivery || listing.developer" class="meta">
-                    <span v-if="delivery">Entrega {{ delivery }}</span>
-                    <span v-if="listing.developer">{{ listing.developer }}</span>
-                </p>
+                <p v-if="delivery" class="meta">Entrega {{ delivery }}</p>
             </template>
         </RouterLink>
     </article>
@@ -58,7 +54,6 @@ const status = computed(() => {
 .photo { position: relative; display: block; aspect-ratio: 4 / 3; background: #d9d3c5; overflow: hidden; }
 .photo img { width: 100%; height: 100%; object-fit: cover; }
 .noimg { display: grid; place-items: center; height: 100%; color: var(--ink-3); }
-.count { position: absolute; left: 10px; bottom: 10px; padding: 3px 9px; background: rgba(38, 43, 41, .72); color: var(--bg); font-size: .74rem; font-weight: 600; }
 .fav { position: absolute; right: 10px; top: 10px; width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(245, 242, 235, .94); color: var(--brand); }
 .fav.on { color: #9f2a1d; }
 .fav.on :deep(path) { fill: currentColor; }
