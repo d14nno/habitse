@@ -1,5 +1,5 @@
 import { DriveEntry } from './DriveFolder'
-import { folderPriority, pickPhotos, slugForFolder, slugForPermutaFolder } from './PhotoPicker'
+import { folderPriority, isFacade, pickPhotos, slugForFolder, slugForPermutaFolder } from './PhotoPicker'
 
 const files = (prefix: string, count: number): DriveEntry[] => Array.from({ length: count }, (_, index) => ({ id: `${prefix}${index + 1}`, name: `${prefix} (${index + 1}).jpg`, kind: 'file' as const }))
 
@@ -33,5 +33,27 @@ describe('escolha das fotos', () => {
         expect(slugForFolder('9 - Institucional')).toBeNull()
         expect(slugForPermutaFolder('Edifício Estêvão - Setor Leste Vila Nova')).toBe('permuta-edificio-estevao')
         expect(slugForPermutaFolder('Lote Parqville Quaresmeira')).toBeNull()
+    })
+})
+
+describe('fachada primeiro', () => {
+    const file = (id: string, name: string): DriveEntry => ({ id, name, kind: 'file' })
+
+    it('a capa é a fachada, mesmo vindo de outra pasta; sem repetir o mesmo arquivo em dois formatos', () => {
+        const picked = pickPhotos([
+            { path: 'decorado', files: [file('d1', 'SALA.jpg'), file('d2', 'COZINHA.jpg')] },
+            { path: 'Perspectivas', files: [file('a', 'ACADEMIA.png'), file('f2', 'FACHADA 2.png'), file('f1', 'FACHADA 1.png'), file('f1b', 'FACHADA 1.jpg'), file('f3', 'Fachada 3.png')] }
+        ], 6)
+
+        expect(picked.slice(0, 2).map(entry => entry.id)).toEqual(['f1b', 'f2'])
+        expect(new Set(picked.map(entry => entry.id)).size).toBe(picked.length)
+        expect(picked.map(entry => entry.id)).not.toContain('f1')
+    })
+
+    it('sem arquivo de fachada, segue a regra de antes; reconhece o nome', () => {
+        expect(pickPhotos([{ path: 'a', files: [file('1', 'SALA.jpg')] }], 12).map(entry => entry.id)).toEqual(['1'])
+        expect(isFacade('BAM_ARES_FACHADA_4.1_ALTA.jpg')).toBe(true)
+        expect(isFacade('Fachada.jpg')).toBe(true)
+        expect(isFacade('LIVING.jpg')).toBe(false)
     })
 })

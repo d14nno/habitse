@@ -30,14 +30,35 @@ export interface PhotoGroup {
 
 const naturalOrder = (a: DriveEntry, b: DriveEntry) => a.name.localeCompare(b.name, 'pt-BR', { numeric: true })
 
-/** Até `limit` fotos: prioridade da pasta, depois uma rodada de cada pasta por vez (espaçadas dentro da pasta, para não repetir ângulo) */
+const stem = (name: string) => name.replace(/\.[^.]+$/, '').toLowerCase()
+
+/** Arquivo de fachada pelo nome ("FACHADA 001.png", "BAM_ARES_FACHADA_4.1_ALTA.jpg") */
+export const isFacade = (name: string) => /fachada|facade/i.test(name)
+
+/** Quantas fachadas abrem a galeria (a primeira é a capa) */
+const FACADES_FIRST = 2
+
+/**
+ * Até `limit` fotos. A fachada vem primeiro (a capa do empreendimento); depois, pela prioridade da pasta, uma rodada de
+ * cada pasta por vez (espaçadas dentro da pasta, para não repetir ângulo).
+ */
 export function pickPhotos(groups: PhotoGroup[], limit = 12): DriveEntry[] {
+    const all = groups.flatMap(group => group.files).filter(file => file.kind === 'file' && IMAGE_FILE.test(file.name))
+    // O mesmo arquivo costuma existir em dois formatos (FACHADA (1).jpg e .jpeg): conta uma vez só
+    const facades = all.filter(file => isFacade(file.name)).sort(naturalOrder).filter((file, index, list) => list.findIndex(other => stem(other.name) === stem(file.name)) === index).slice(0, FACADES_FIRST)
+    const taken = new Set(facades.map(file => stem(file.name)))
+    const rest = pickRound(groups.map(group => ({ ...group, files: group.files.filter(file => !taken.has(stem(file.name))) })), limit - facades.length)
+
+    return [...facades, ...rest]
+}
+
+function pickRound(groups: PhotoGroup[], limit: number): DriveEntry[] {
     const ordered = groups
         .map(group => ({ ...group, files: group.files.filter(file => file.kind === 'file' && IMAGE_FILE.test(file.name)).sort(naturalOrder) }))
         .filter(group => group.files.length)
         .sort((a, b) => folderPriority(a.path) - folderPriority(b.path) || a.path.localeCompare(b.path))
 
-    if (!ordered.length) return []
+    if (!ordered.length || limit <= 0) return []
 
     const quota = Math.max(1, Math.ceil(limit / ordered.length))
     const spread = ordered.map(group => {
