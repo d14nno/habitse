@@ -9,6 +9,7 @@ import { ALL_SLUG, CATEGORIES } from '@/utils/categories'
 import type { CategoryKey, Facets, ListingCard as Card } from '@/types/Listing'
 import CardSkeleton from '@/components/CardSkeleton.vue'
 import ListingCard from '@/components/ListingCard.vue'
+import UpgradeSheet from '@/components/UpgradeSheet.vue'
 
 const router = useRouter()
 
@@ -23,7 +24,7 @@ const form = ref({ q: '', suites: '', max: '' })
 
 const neighborhoods = computed(() => (facets.value?.neighborhoods ?? []).slice().sort((a, b) => b.total - a.total || a.neighborhood.localeCompare(b.neighborhood)).slice(0, 8))
 const consultMessage = `Olá! Vim pelo site da ${SITE.name} e gostaria de conversar com um consultor.`
-const upgradeMessage = 'Olá! Tenho um imóvel e gostaria de saber como usá-lo como parte do pagamento em um upgrade.'
+const upgradeOpen = ref(false)
 
 function submit() {
     const query: Record<string, string> = {}
@@ -113,9 +114,9 @@ onMounted(async () => {
                 <div class="upgrade">
                     <div>
                         <h2 id="upgrade">Quer fazer um upgrade no seu imóvel?</h2>
-                        <p>Use o seu imóvel como parte do pagamento. Conte o que você tem e um consultor apresenta as opções que fazem sentido para você, com as condições de cada uma.</p>
+                        <p>Use o seu imóvel como parte do pagamento. Preencha os dados do imóvel e envie pelo WhatsApp: um consultor faz uma análise inicial e apresenta as opções que fazem sentido para você.</p>
                     </div>
-                    <a class="btn primary" :href="whatsappLink(upgradeMessage)" target="_blank" rel="noopener">Avaliar meu imóvel</a>
+                    <button type="button" class="btn primary" @click="upgradeOpen = true">Avaliar meu imóvel</button>
                 </div>
             </section>
 
@@ -132,6 +133,8 @@ onMounted(async () => {
                 </ul>
             </section>
         </div>
+
+        <UpgradeSheet :open="upgradeOpen" @close="upgradeOpen = false" />
 
         <section id="atendimento" class="care">
             <div class="container care-in">
