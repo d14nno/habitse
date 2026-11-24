@@ -31,3 +31,19 @@ export function pinLabel(price: number | null): string {
 
     return `${Math.round(price / 1_000).toLocaleString('pt-BR')} mil`
 }
+
+let cached: Places | null = null
+
+/** Posições de `/data/mapa.json` (uma vez por visita); sem o arquivo, o mapa fica sem pinos em vez de quebrar */
+export async function loadPlaces(): Promise<Places> {
+    if (cached) return cached
+    try {
+        const response = await fetch('/data/mapa.json', { headers: { Accept: 'application/json' } })
+        const data = response.ok ? await response.json() : {}
+        cached = Object.fromEntries(Object.entries(data).filter(([key]) => !key.startsWith('_'))) as Places
+    } catch {
+        cached = {}
+    }
+
+    return cached
+}

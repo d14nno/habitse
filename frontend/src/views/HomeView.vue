@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { listingsApi } from '@/api/client'
@@ -12,6 +12,9 @@ import CardSkeleton from '@/components/CardSkeleton.vue'
 import HeroCarousel from '@/components/HeroCarousel.vue'
 import ListingCard from '@/components/ListingCard.vue'
 import UpgradeSheet from '@/components/UpgradeSheet.vue'
+
+/** O mapa (Leaflet) é um pedaço de código à parte: só é baixado quando a seção "Bairros" é montada */
+const MiniMap = defineAsyncComponent(() => import('@/components/MiniMap.vue'))
 
 const router = useRouter()
 
@@ -129,6 +132,7 @@ onMounted(async () => {
             <section v-if="neighborhoods.length" class="section hoods" aria-labelledby="bairros">
                 <div class="side">
                     <h2 id="bairros">Bairros</h2>
+                    <MiniMap />
                 </div>
                 <ul>
                     <li v-for="item in neighborhoods" :key="`${item.city}-${item.neighborhood}`">

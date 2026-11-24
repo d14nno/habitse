@@ -11,7 +11,7 @@ import { activeFilterCount, filtersFromQuery, filtersToQuery } from '@/composabl
 import { setSeo } from '@/composables/useSeo'
 import { CATEGORIES, categoryByKey, categoryBySlug } from '@/utils/categories'
 import { formatDelivery, formatPrice, priceLead, summary } from '@/utils/format'
-import { APPROX_RADIUS, buildPoints, pinLabel, type MapPoint, type Places } from '@/utils/mapPoints'
+import { APPROX_RADIUS, buildPoints, loadPlaces, pinLabel, type MapPoint } from '@/utils/mapPoints'
 import type { Facets, Filters } from '@/types/Listing'
 import AppIcon from '@/components/AppIcon.vue'
 import FilterSheet from '@/components/FilterSheet.vue'
@@ -35,25 +35,11 @@ const activeCount = computed(() => activeFilterCount(filters.value))
 let map: L.Map | null = null
 let layer: L.MarkerClusterGroup | null = null
 let circles: L.LayerGroup | null = null
-let places: Places | null = null
 let run = 0
 
 /** A URL guarda categoria e filtros: compartilhar ou voltar reabre o mesmo mapa */
 function setQuery(next: Filters, slug: string | undefined) {
     router.replace({ query: { ...filtersToQuery(next), ...(slug ? { categoria: slug } : {}) } })
-}
-
-async function loadPlaces(): Promise<Places> {
-    if (places) return places
-    try {
-        const response = await fetch('/data/mapa.json', { headers: { Accept: 'application/json' } })
-        const data = response.ok ? await response.json() : {}
-        places = Object.fromEntries(Object.entries(data).filter(([key]) => !key.startsWith('_'))) as Places
-    } catch {
-        places = {}
-    }
-
-    return places
 }
 
 function draw(points: MapPoint[]) {
