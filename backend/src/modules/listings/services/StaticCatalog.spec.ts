@@ -71,6 +71,7 @@ describe('catálogo estático', () => {
 
         expect(xml).toContain('<loc>https://habitse.com.br/</loc>')
         expect(xml).toContain('<loc>https://habitse.com.br/em-construcao</loc>')
+        expect(xml).toContain('<loc>https://habitse.com.br/mapa</loc>')
         expect(xml).toContain('<loc>https://habitse.com.br/imovel/praca-232</loc><lastmod>2026-11-20</lastmod>')
     })
 })

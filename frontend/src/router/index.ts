@@ -18,6 +18,7 @@ export const router = createRouter({
             beforeEnter: to => (categoryBySlug(String(to.params.category)) ? true : { name: 'not-found' })
         },
         { path: '/imovel/:slug', name: 'listing', component: () => import('@/views/ListingView.vue') },
+        { path: '/mapa', name: 'map', component: () => import('@/views/MapView.vue') },
         { path: '/favoritos', name: 'favorites', component: () => import('@/views/FavoritesView.vue') },
         { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue') }
     ],

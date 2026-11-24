@@ -18,6 +18,7 @@ const message = `Olá! Vim pelo site da ${SITE.name} e gostaria de conversar com
             <nav class="desk" aria-label="Categorias">
                 <RouterLink v-for="category in CATEGORIES" :key="category.key" :to="`/${category.slug}`">{{ category.short }}</RouterLink>
                 <RouterLink :to="`/${ALL_SLUG}`">Todos os imóveis</RouterLink>
+                <RouterLink to="/mapa">Mapa</RouterLink>
             </nav>
 
             <div class="end">

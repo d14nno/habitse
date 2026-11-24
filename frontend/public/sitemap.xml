@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://habitse.com.br/</loc></url>
+  <url><loc>https://habitse.com.br/mapa</loc></url>
   <url><loc>https://habitse.com.br/prontos-para-morar</loc></url>
   <url><loc>https://habitse.com.br/oportunidades</loc></url>
   <url><loc>https://habitse.com.br/na-planta</loc></url>
@@ -22,5 +23,5 @@
   <url><loc>https://habitse.com.br/imovel/permuta-sobrado-jardins-madri</loc><lastmod>2026-11-23</lastmod></url>
   <url><loc>https://habitse.com.br/imovel/permuta-sobrado-nova-suica</loc><lastmod>2026-11-23</lastmod></url>
   <url><loc>https://habitse.com.br/imovel/praca-232</loc><lastmod>2026-11-23</lastmod></url>
-  <url><loc>https://habitse.com.br/imovel/vox-home</loc><lastmod>2026-11-23</lastmod></url>
+  <url><loc>https://habitse.com.br/imovel/vox-home</loc><lastmod>2026-11-24</lastmod></url>
 </urlset>

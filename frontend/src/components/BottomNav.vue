@@ -9,6 +9,7 @@ const favorites = useFavorites()
 const TABS = [
     { to: '/', label: 'Início', icon: 'home', exact: true },
     { to: `/${ALL_SLUG}`, label: 'Imóveis', icon: 'search' },
+    { to: '/mapa', label: 'Mapa', icon: 'pin' },
     { to: '/favoritos', label: 'Favoritos', icon: 'heart' }
 ]
 const message = `Olá! Vim pelo site da ${SITE.name} e gostaria de conversar com um consultor.`
@@ -29,7 +30,7 @@ const message = `Olá! Vim pelo site da ${SITE.name} e gostaria de conversar com
 </template>
 
 <style scoped>
-.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(4, 1fr); height: calc(var(--nav-h) + var(--safe-bottom)); padding-bottom: var(--safe-bottom); background: var(--card); border-top: 1px solid var(--line); }
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr); height: calc(var(--nav-h) + var(--safe-bottom)); padding-bottom: var(--safe-bottom); background: var(--card); border-top: 1px solid var(--line); }
 a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: .72rem; font-weight: 600; color: var(--ink-3); }
 a.on { color: var(--brand); box-shadow: inset 0 2px 0 var(--sand); }
 a.wa { background: var(--brand); color: var(--bg); }

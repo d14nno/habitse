@@ -176,6 +176,7 @@ export function buildSitemap(catalog: Catalog, siteUrl: string): string {
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
         entry('/'),
+        entry('/mapa'),
         ...Object.values(CATEGORY_INFO).map(category => entry(`/${category.slug}`)),
         ...catalog.items.map(item => entry(`/imovel/${encodeURIComponent(item.slug)}`, item.updatedAt)),
         '</urlset>',
