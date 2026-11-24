@@ -5,7 +5,7 @@
 | Peça | Onde | Por quê |
 |---|---|---|
 | **Site** (`habitse.com.br`, `www`) | **Cloudflare Pages** (grátis) | CDN no Brasil, HTTPS automático, carrega rápido no celular, sem servidor para cuidar. Publica sozinho a cada `git push`. |
-| **API** (`api.habitse.com.br`) | **1 VPS pequena** (Vultr/DigitalOcean, ~US$ 6/mês, Ubuntu 22.04+) com Node 20 + PM2 + Caddy | Já é o tipo de servidor usado no CRM; sem Docker; HTTPS automático pelo Caddy. |
+| **API** (`api.habitse.com.br`) | **1 VPS pequena** (Vultr/DigitalOcean, ~US$ 6/mês, Ubuntu 22.04+) com Docker (API, Postgres e Redis) + Caddy | Já é o tipo de servidor usado no CRM; sem Docker; HTTPS automático pelo Caddy. |
 | **Banco** | Postgres 16 e Redis na mesma VPS | Suficiente para a vitrine; backup diário por `pg_dump` (abaixo). |
 | **DNS** | Cloudflare (nameservers trocados no Registro.br) | O domínio raiz (`habitse.com.br`, sem `www`) só funciona com CNAME na raiz na Cloudflare. |
 
@@ -18,6 +18,20 @@
 3. Na Cloudflare → DNS → crie: `A  api  →  IP da VPS` (nuvem **cinza/DNS only**, para o Caddy emitir o certificado).
 
 ## 2. API na VPS
+
+### Com Docker (recomendado: tudo automático)
+
+```bash
+git clone <repositório do projeto> /srv/habitse && cd /srv/habitse/backend
+cp .env.example .env && nano .env          # valores essenciais abaixo
+export POSTGRES_PASSWORD=<senha forte>      # a mesma em DATABASE_URL se usar o banco de fora
+docker compose --profile api up -d --build
+```
+
+Ao subir, o container roda `migrate:latest` sozinho: cria as tabelas, carrega as permutas iniciais e cria o administrador do painel (`admin@habitse.com.br`; a senha foi entregue ao dono e o repositório guarda só o hash — **troque-a em `/admin` → Trocar senha**). Para atualizar: `git pull && docker compose --profile api up -d --build`. Banco e Redis só aceitam conexões da própria máquina; o Caddy (abaixo) é a única porta pública.
+
+### Sem Docker (alternativa com PM2)
+
 
 ```bash
 # Pacotes (Ubuntu)

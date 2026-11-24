@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 
-import { adminEmail, AdminError, AdminPermuta, isLoggedIn, login, logout, permutasAdmin } from '@/api/admin'
+import { adminEmail, AdminError, AdminPermuta, changePassword, isLoggedIn, login, logout, permutasAdmin } from '@/api/admin'
 
 /** Painel: entrar e editar as permutas/usados que aparecem no site (a mudança vale em cerca de 1 minuto) */
 const logged = ref(isLoggedIn())
@@ -66,6 +66,14 @@ async function signOut() {
     editing.value = false
 }
 
+const passwordForm = reactive({ open: false, old: '', next: '' })
+
+const savePassword = () => guard(async () => {
+    await changePassword(passwordForm.old, passwordForm.next)
+    Object.assign(passwordForm, { open: false, old: '', next: '' })
+    notify('Senha alterada.')
+})
+
 function edit(item: AdminPermuta | null) {
     isNew.value = !item
     Object.assign(form, blank(), item ? {
@@ -127,8 +135,16 @@ onMounted(() => {
         <template v-else>
             <div class="bar">
                 <span>{{ adminEmail() }}</span>
-                <button class="btn" @click="signOut">Sair</button>
+                <span class="actions">
+                    <button class="btn" @click="passwordForm.open = !passwordForm.open">Trocar senha</button>
+                    <button class="btn" @click="signOut">Sair</button>
+                </span>
             </div>
+            <form v-if="passwordForm.open" class="card password" @submit.prevent="savePassword">
+                <label>Senha atual<input v-model="passwordForm.old" type="password" autocomplete="current-password" required></label>
+                <label>Nova senha (mínimo 8 caracteres)<input v-model="passwordForm.next" type="password" autocomplete="new-password" minlength="8" required></label>
+                <button class="btn primary" :disabled="busy">Salvar nova senha</button>
+            </form>
             <p v-if="message" class="msg" :class="{ bad: failed }" role="status">{{ message }}</p>
 
             <section v-if="!editing">
@@ -189,7 +205,8 @@ onMounted(() => {
 <style scoped>
 .admin { padding: 32px 0 80px; max-width: 860px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 20px; }
-.login { max-width: 380px; display: grid; gap: 14px; }
+.login, .password { max-width: 380px; display: grid; gap: 14px; }
+.actions { display: flex; gap: 8px; }
 label { display: grid; gap: 4px; font-size: .9rem; font-weight: 600; }
 input, select, textarea { font: inherit; font-weight: 400; min-height: 44px; padding: 8px 10px; border: 1px solid #cfc9bb; border-radius: var(--radius-sm); background: #fff; width: 100%; }
 textarea { resize: vertical; }

@@ -107,6 +107,9 @@ async function authed<T>(path: string, init: RequestInit = {}): Promise<T> {
     }
 }
 
+export const changePassword = (passwordOld: string, password: string) =>
+    authed<void>('/accounts/password', { method: 'PATCH', body: JSON.stringify({ passwordOld, password, passwordConfirm: password }) })
+
 export const permutasAdmin = {
     list: () => authed<AdminPermuta[]>('/admin/permutas'),
     save: ({ id, ...fields }: AdminPermuta) => authed<AdminPermuta>(`/admin/permutas/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(fields) }),
