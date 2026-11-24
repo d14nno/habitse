@@ -1,3 +1,4 @@
+import { SITE } from '@/config'
 import type { CategoryKey, Facets, ListingCard, ListingDetail, Paginated, Sort } from '@/types/Listing'
 
 /**
@@ -153,6 +154,41 @@ export function catalogFacets(catalog: Catalog, category?: CategoryKey): Facets 
 
 let loading: Promise<Catalog | null> | null = null
 
+export interface RemotePermutas { catalog: Catalog, places: Record<string, { lat: number, lng: number, approx: boolean }> }
+
+let remote: Promise<RemotePermutas | null> | null = null
+
+/**
+ * Permutas editadas no painel (/admin). Se a API responder com alguma, elas trocam as do arquivo estático;
+ * sem resposta ou sem nenhuma, o site continua com o arquivo. Nunca atrasa o site por mais de 4 s.
+ */
+export function loadRemotePermutas(url = `${SITE.api}/listings/permutas/catalog`): Promise<RemotePermutas | null> {
+    remote ??= (async () => {
+        try {
+            const response = await fetch(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(4000) })
+            if (!response.ok) return null
+
+            const body = await response.json()
+
+            return body && Array.isArray(body.catalog?.items) && body.catalog.items.length ? (body as RemotePermutas) : null
+        } catch {
+            return null
+        }
+    })()
+
+    return remote
+}
+
+/** Troca os anúncios de permuta do catálogo pelos do painel (ids deslocados para não colidirem com os do arquivo) */
+export function withRemotePermutas(catalog: Catalog, permutas: RemotePermutas | null): Catalog {
+    if (!permutas) return catalog
+
+    const offset = 1_000_000
+    const updated = permutas.catalog.items.map(item => ({ ...item, id: item.id + offset }))
+
+    return { ...catalog, items: [...catalog.items.filter(item => !item.permuta), ...updated] }
+}
+
 /** Lê o catálogo publicado com o site; null se não existir ou estiver vazio/inválido (aí o site usa a API) */
 export function loadCatalog(url = `${import.meta.env.BASE_URL}data/empreendimentos.json`): Promise<Catalog | null> {
     loading ??= (async () => {
@@ -162,7 +198,7 @@ export function loadCatalog(url = `${import.meta.env.BASE_URL}data/empreendiment
 
             const body = await response.json()
 
-            return body && Array.isArray(body.items) && body.items.length ? (body as Catalog) : null
+            return body && Array.isArray(body.items) && body.items.length ? withRemotePermutas(body as Catalog, await loadRemotePermutas()) : null
         } catch {
             // Arquivo ausente: o site responde com index.html (HTML) e o JSON falha; rede fora do ar também cai aqui
             return null
@@ -175,4 +211,5 @@ export function loadCatalog(url = `${import.meta.env.BASE_URL}data/empreendiment
 /** Só para testes */
 export const resetCatalogCache = () => {
     loading = null
+    remote = null
 }

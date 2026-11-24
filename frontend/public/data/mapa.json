@@ -1,19 +1,93 @@
 {
   "_ajuda": "Posição de cada imóvel no mapa, pelo slug. lat/lng em graus. approx=true: o pino mostra só a região (círculo), sem o ponto exato. Imóvel sem entrada aqui não aparece no mapa. Para corrigir, copie as coordenadas do Google Maps (clique direito no ponto).",
-  "areiao-1141": { "lat": -16.70184, "lng": -49.25450, "approx": false },
-  "ares-marista": { "lat": -16.70124, "lng": -49.25390, "approx": false },
-  "marista-262": { "lat": -16.70580, "lng": -49.25963, "approx": false },
-  "b-great-bosque-dos-buritis": { "lat": -16.67835, "lng": -49.26138, "approx": false },
-  "bgreat-nova-suica": { "lat": -16.72685, "lng": -49.28161, "approx": false },
-  "praca-232": { "lat": -16.70756, "lng": -49.27736, "approx": false },
-  "vox-home": { "lat": -16.70817, "lng": -49.27689, "approx": false },
-  "permuta-edificio-estevao": { "lat": -16.66570, "lng": -49.24377, "approx": true },
-  "permuta-gran-campinas": { "lat": -16.66755, "lng": -49.28443, "approx": true },
-  "permuta-lote-garavelo": { "lat": -16.76758, "lng": -49.34260, "approx": true },
-  "permuta-lote-santos-dumont": { "lat": -16.65049, "lng": -49.33660, "approx": true },
-  "permuta-lote-talisma": { "lat": -16.88703, "lng": -49.61703, "approx": true },
-  "permuta-lote-trindade-romeiros": { "lat": -16.64934, "lng": -49.41601, "approx": true },
-  "permuta-new-park-clube": { "lat": -16.73530, "lng": -49.29259, "approx": true },
-  "permuta-palco-vaca-brava": { "lat": -16.70912, "lng": -49.28882, "approx": true },
-  "permuta-sobrado-nova-suica": { "lat": -16.71405, "lng": -49.27310, "approx": true }
+  "areiao-1141": {
+    "lat": -16.70184,
+    "lng": -49.2545,
+    "approx": false
+  },
+  "ares-marista": {
+    "lat": -16.70124,
+    "lng": -49.2539,
+    "approx": false
+  },
+  "marista-262": {
+    "lat": -16.7058,
+    "lng": -49.25963,
+    "approx": false
+  },
+  "b-great-bosque-dos-buritis": {
+    "lat": -16.67835,
+    "lng": -49.26138,
+    "approx": false
+  },
+  "bgreat-nova-suica": {
+    "lat": -16.72685,
+    "lng": -49.28161,
+    "approx": false
+  },
+  "praca-232": {
+    "lat": -16.70756,
+    "lng": -49.27736,
+    "approx": false
+  },
+  "vox-home": {
+    "lat": -16.70817,
+    "lng": -49.27689,
+    "approx": false
+  },
+  "permuta-edificio-estevao": {
+    "lat": -16.6657,
+    "lng": -49.24377,
+    "approx": true
+  },
+  "permuta-gran-campinas": {
+    "lat": -16.66755,
+    "lng": -49.28443,
+    "approx": true
+  },
+  "permuta-lote-garavelo": {
+    "lat": -16.76,
+    "lng": -49.33,
+    "approx": true
+  },
+  "permuta-lote-santos-dumont": {
+    "lat": -16.65,
+    "lng": -49.34,
+    "approx": true
+  },
+  "permuta-lote-talisma": {
+    "lat": -16.88703,
+    "lng": -49.61703,
+    "approx": true
+  },
+  "permuta-lote-trindade-romeiros": {
+    "lat": -16.64934,
+    "lng": -49.41601,
+    "approx": true
+  },
+  "permuta-new-park-clube": {
+    "lat": -16.73,
+    "lng": -49.29,
+    "approx": true
+  },
+  "permuta-palco-vaca-brava": {
+    "lat": -16.71,
+    "lng": -49.28,
+    "approx": true
+  },
+  "permuta-sobrado-nova-suica": {
+    "lat": -16.71405,
+    "lng": -49.2731,
+    "approx": true
+  },
+  "permuta-sobrado-jardins-madri": {
+    "lat": -16.75,
+    "lng": -49.35,
+    "approx": true
+  },
+  "permuta-lote-sollar-ville": {
+    "lat": -16.63,
+    "lng": -49.37,
+    "approx": true
+  }
 }

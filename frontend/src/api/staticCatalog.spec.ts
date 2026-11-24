@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { catalogFacets, getFromCatalog, heroSlides, listCatalog, loadCatalog, resetCatalogCache, type Catalog, type CatalogItem } from './staticCatalog'
+import { catalogFacets, getFromCatalog, heroSlides, listCatalog, loadCatalog, withRemotePermutas, resetCatalogCache, type Catalog, type CatalogItem } from './staticCatalog'
 
 const item = (id: number, extra: Partial<CatalogItem> = {}): CatalogItem => ({
     id, slug: `imovel-${id}`, title: `Imóvel ${id}`, category: 'under_construction', categoryLabel: 'Em construção', categorySlug: 'em-construcao', type: 'apartamento',
@@ -150,13 +150,23 @@ describe('loadCatalog', () => {
         resetCatalogCache()
     })
 
-    it('carrega o arquivo publicado com o site e guarda em memória (uma só busca)', async () => {
+    it('carrega o arquivo publicado com o site e guarda em memória (uma só busca de cada)', async () => {
         const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => catalog })
         vi.stubGlobal('fetch', fetchMock)
 
         expect((await loadCatalog('/data/x.json'))?.items).toHaveLength(4)
         await loadCatalog('/data/x.json')
-        expect(fetchMock).toHaveBeenCalledTimes(1)
+        // O arquivo e as permutas do painel (que aqui não vêm no formato esperado e são ignoradas)
+        expect(fetchMock).toHaveBeenCalledTimes(2)
+    })
+
+    it('as permutas do painel trocam as do arquivo; sem nenhuma, o arquivo vale', () => {
+        const file = { version: 1, items: [item(1), item(2, { permuta: true, slug: 'permuta-velha' })] }
+        const panel = { catalog: { version: 1, items: [item(1, { permuta: true, slug: 'permuta-nova' })] }, places: {} }
+
+        expect(withRemotePermutas(file, null)).toBe(file)
+        expect(withRemotePermutas(file, panel).items.map(entry => entry.slug)).toEqual([file.items[0].slug, 'permuta-nova'])
+        expect(new Set(withRemotePermutas(file, panel).items.map(entry => entry.id)).size).toBe(2)
     })
 
     it('ausente, vazio ou inválido vira null (o site usa a API); o site responde index.html no lugar do JSON que não existe', async () => {

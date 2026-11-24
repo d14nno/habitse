@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 
+import { PermutaController } from '@modules/listings/useCases/PermutaController'
 import { ListingController } from '@modules/listings/useCases/ListingController'
 
 /** Vitrine pública (sem login). Leitura apenas; o limite protege contra varredura do catálogo. */
@@ -15,6 +16,7 @@ const ListingRoutes = Router()
 
 ListingRoutes.use(publicLimiter)
 
+ListingRoutes.get('/permutas/catalog', PermutaController.catalog)
 // /facets antes de /:slug para não ser lido como slug
 ListingRoutes.get('/facets', ListingController.validateFacets, ListingController.facets)
 ListingRoutes.get('/', ListingController.validateList, ListingController.list)

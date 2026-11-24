@@ -1,3 +1,4 @@
+import { loadRemotePermutas } from '@/api/staticCatalog'
 import type { ListingCard } from '@/types/Listing'
 
 export interface Place { lat: number, lng: number, approx: boolean }
@@ -44,6 +45,10 @@ export async function loadPlaces(): Promise<Places> {
     } catch {
         cached = {}
     }
+
+    // Posições das permutas editadas no painel valem mais que as do arquivo
+    const remote = await loadRemotePermutas()
+    if (remote) cached = { ...cached, ...remote.places }
 
     return cached
 }

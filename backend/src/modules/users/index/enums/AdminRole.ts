@@ -7,7 +7,8 @@ export enum Permission {
     USERS_READ = 'users:read',
     USERS_MANAGE = 'users:manage',
     ADMINS_MANAGE = 'admins:manage',
-    AUDIT_READ = 'audit:read'
+    AUDIT_READ = 'audit:read',
+    LISTINGS_MANAGE = 'listings:manage'
 }
 
 /** Permissões de cada papel. Para um novo papel/permissão, edite apenas aqui (e docs/API.md). */
