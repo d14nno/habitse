@@ -1,5 +1,5 @@
-# Postgres e Redis para desenvolvimento local. Em produção, `docker compose --profile api up -d --build` sobe também a API,
-# que roda as migrations sozinha ao iniciar (veja ../DEPLOY.md). Em produção defina POSTGRES_PASSWORD (senha forte) no ambiente.
+# Um comando sobe tudo: `docker compose --profile api up -d --build` (Postgres, Redis e a API). O banco `habitse` é criado pelo Postgres
+# e a API roda as migrations sozinha ao iniciar, depois que o banco e o Redis estão saudáveis (veja ../DEPLOY.md). Em produção defina POSTGRES_PASSWORD (senha forte) no ambiente.
 # Banco e Redis só aceitam conexões da própria máquina.
 services:
     postgres:
@@ -14,6 +14,11 @@ services:
             - '127.0.0.1:5432:5432'
         volumes:
             - ./docker/postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U postgres -d habitse']
+            interval: 3s
+            timeout: 3s
+            retries: 20
 
     redis:
         image: redis:7
@@ -21,15 +26,23 @@ services:
         restart: unless-stopped
         ports:
             - '127.0.0.1:6379:6379'
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 3s
+            timeout: 3s
+            retries: 20
 
     api:
         build: .
         container_name: habitse-api
         profiles: ['api']
         restart: unless-stopped
+        # Só inicia (e roda as migrations) depois que o banco e o Redis estiverem prontos
         depends_on:
-            - postgres
-            - redis
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
         env_file: .env
         environment:
             # Dentro do Docker, banco e Redis são acessados pelo nome do serviço
